@@ -1,8 +1,12 @@
 # VAULT / AUTH - JWT - OIDC: Public Key Validation
 
-This method can be useful if Kubernetes' API is not reachable from Vault or if you would like a single JWT auth mount to service multiple Kubernetes clusters by chaining their public signing keys.
+"Before a client can interact with Vault, it must authenticate against an auth method to acquire a token. This token has policies attached so that the behavior of the client can be governed."
+
+[![High Level Flow - Auth Method](https://mktg-content-api-hashicorp.vercel.app/api/assets?product=tutorials&version=main&asset=public%2Fimg%2Fvault-auth-basic-2.png)](https://www.vaultproject.io/docs/auth/jwt/oidc_providers#using-jwt-validation-public-keys)
 
 https://www.vaultproject.io/docs/auth/jwt/oidc_providers#using-jwt-validation-public-keys
+
+This method can be useful if Kubernetes' API is not reachable from Vault or if you would like a single JWT auth mount to service multiple Kubernetes clusters by chaining their public signing keys.
 
 ## PREREQUISITES
 

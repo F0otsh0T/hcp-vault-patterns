@@ -20,7 +20,7 @@ This method can be useful if Kubernetes' API is not reachable from Vault or if y
    - jq
    - curl
    - PGP/GPG/PASS
-   - Vault PKI Engines, Auth, Policies, Certs, Roles, etc.,
+   - Vault **[Initialized & Unsealed](https://learn.hashicorp.com/tutorials/vault/getting-started-deploy)**
 
 ## Spin up a Kubernetes Cluster
 

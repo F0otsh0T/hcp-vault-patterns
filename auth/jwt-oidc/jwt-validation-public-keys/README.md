@@ -216,6 +216,12 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 
 ## Appendix
 
+###### JWK Conversion
+
+- https://www.npmjs.com/package/pem-jwk
+- https://github.com/dannycoates/pem-jwk
+
+###### API
 ```shell
 curl \
    --fail \

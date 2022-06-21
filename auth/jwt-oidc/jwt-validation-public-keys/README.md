@@ -17,6 +17,8 @@ This method can be useful if Kubernetes' API is not reachable from Vault or if y
    - Vault CLI
    - Terraform
    - make
+   - npm
+   - pem-jwk (```npm install -g pem-jwk```)
    - jq
    - curl
    - PGP/GPG/PASS

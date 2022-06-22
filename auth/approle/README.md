@@ -23,7 +23,7 @@ The **[AppRole](https://www.vaultproject.io/docs/auth/approle)** ```auth``` meth
 
 ## Personas
 
-The end-to-end scenario described in this tutorial involves two personas:
+The end-to-end scenario described in this tutorial involves two (or three) personas:
 
 - ```admin``` with privileged permissions to configure an auth method
 - ```trusted entity``` delivers the RoleID and SecretID to the client by separate means (this could also be ```admin```)

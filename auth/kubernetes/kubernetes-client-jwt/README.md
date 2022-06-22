@@ -1,6 +1,10 @@
 # VAULT / AUTH - Kubernetes Vault Client JWT
 
-https://www.vaultproject.io/docs/auth/kubernetes#use-local-service-account-token-as-the-reviewer-jwt
+"Before a client can interact with Vault, it must authenticate against an auth method to acquire a token. This token has policies attached so that the behavior of the client can be governed."
+
+[![High Level Flow - Auth Method](https://mktg-content-api-hashicorp.vercel.app/api/assets?product=tutorials&version=main&asset=public%2Fimg%2Fvault-auth-basic-2.png)](https://www.vaultproject.io/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt)
+
+- https://www.vaultproject.io/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt
 
 ## PREREQUISITES
 
@@ -373,9 +377,9 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
 
 
 ## Reference
+- https://www.vaultproject.io/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt
 - git clone https://github.com/hashicorp/learn-vault-agent.git
 - https://www.vaultproject.io/docs/auth/kubernetes#use-local-service-account-token-as-the-reviewer-jwt
-- https://www.vaultproject.io/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt
 - https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-account
 - https://www.vaultproject.io/docs/platform/k8s/injector
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar

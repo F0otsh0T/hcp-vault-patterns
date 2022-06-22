@@ -52,7 +52,7 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
 
     Create a Kubernetes **serviceaccount** named ```vault-auth```
 
-    ```
+    ```shell
     kubectl create serviceaccount vault-auth
     ```
 
@@ -62,7 +62,7 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
 
     Use the following **YAML manifest** as an example to create the **clusterrolebinding** resource with filename == ```vault-auth-service-account.yaml```:
 
-    ```
+    ```yaml
     ---
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
@@ -81,14 +81,14 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
 
 - Apply ```clusterrolebinding``` manifest to update the ```vault-auth``` ```serviceaccount```
 
-    ```
+    ```shell
     kubectl apply -f vault-auth-service-account.yaml
     ```
 
 ###### 2. Harvesting Data Needed from K8s Resources
 - ```VAULT_SA_NAME```
     From the **serviceaccount** ```vault-auth```, we need to extract the data value from the **.secrets[*]['name']** location to further harvest data from for our **Vault K8s Auth Method**
-    ```
+    ```shell
     $ kubectl get sa vault-auth -o json
     {
         "apiVersion": "v1",
@@ -117,7 +117,7 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     vault-auth-token-8spcq
     ```
     In this case, we are looking for that ```vault-auth-token-8spcq``` value. Another way to extract this and set the environment variable at the same time is:
-    ```
+    ```shell
     $ export VAULT_SA_NAME=$(kubectl get sa vault-auth -o jsonpath="{.secrets[*]['name']}")
     vault-auth-token-8spcq
     $ echo $VAULT_SA_NAME
@@ -125,14 +125,14 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     ```
 - ```SA_JWT_TOKEN``` (BASE64 DECODE)
     Set the **serviceaccount** JWT (embedded in the ***serviceaccount** resource's **secret**) as an environment variable ```SA_JWT_TOKEN```. This will be used by **Vault K8s Auth Method** to access the Kubernetes Cluster **TokenReview** API.
-    ```
+    ```shell
     $ export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME --output 'go-template={{ .data.token }}' | base64 --decode)
     $ echo $SA_JWT_TOKEN
     BLAHBLAHBLAHJWT
     ```
 - ```SA_CA_CRT``` (BASE64 DECODE)
     Set the **certificate** environment variable ```SA_CA_CRT``` for the Kubernetes Cluster from the **.clusters[].cluster.certificate-authority-data** (PEM Encoded Cluster CA CRT) that will be used by **Vault K8s Auth Method** to access this Cluster's **Kubernetes API**
-    ```
+    ```shell
     $ export SA_CA_CRT=$(kubectl config view --raw --minify --flatten --output 'jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 --decode)
     $ echo $SA_CA_CRT
     -----BEGIN CERTIFICATE-----
@@ -141,13 +141,13 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     ```
 - ```K8S_HOST```
     Set environment variable ```K8S_HOST``` for the **Kubernetes API** ```URL``` so that **Vault** can know how to reach the **K8s** Cluster.
-    ```
+    ```shell
     $ export K8S_HOST=$(kubectl config view --raw --minify --flatten --output 'jsonpath={.clusters[].cluster.server}')
     $ echo $K8S_HOST
     https://blah.blah:53682
     ```
     **OR** via ```jq```
-    ```
+    ```shell
     export K8S_HOST=$(kubectl config view --raw --minify --flatten -o json | jq -r '.clusters[].cluster.server'
     $ echo $K8S_HOST
     https://blah.blah:53682
@@ -156,7 +156,7 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     >
     > In this case, because **Vault** is running in the same Docker Runtime environment as the **K8s** Cluster, probably need to understand the ```ip``` that will get you to the **HOST** IP point of presence (*host.docker.internal* or *host.k3d.internal* @ 192.168.65.2 in our case).
     - Combine the two above pieces of information and the ```K8S_HOST``` needs to be:
-    ```
+    ```shell
     export K8S_HOST=https://192.168.65.2:53682
     ```
 
@@ -168,20 +168,20 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
 ###### 1. Set Vault Policy
 - Will re-use this policy later in the excercise
 - For now, reference the ~/02-pki-build/policy/p.global.crudl.hcl or some other policy set with enough permissions to complete these steps
-    ```
+    ```shell
     $ vault policy write global.crudl ~/02-pki-build/policy/p.global.crudl.hcl
     ```
 
 ###### 2. Enable and configure the [***Vault K8s Auth Method***](https://www.vaultproject.io/docs/auth/kubernetes#configuration)
 - Enable the **Vault K8s Auth Method** at the default path ```auth/kubernetes```
-    ```
+    ```shell
     $ vault auth enable kubernetes
     Success! Enabled kubernetes auth method at: kubernetes/
     ```
 - Tell **Vault** how to communicate with the K8s Cluster (with data harvested from previous steps and set in environment variables ```SA_JWT_TOKEN```, ```K8S_HOST```, and ```SA_CA_CRT```).
   The ```auth/kubernetes/config``` we are using in this instance omits the line for ```      token_reviewer_jwt="$SA_JWT_TOKEN" \``` in the original instructions to accomodate **Kubernetes v1.21+** changes to ```iss``` and short-lived tokens.
   - **Vault** passes it's own ***JWT***:
-    ```
+    ```shell
     $ vault write auth/kubernetes/config \
       token_reviewer_jwt="$SA_JWT_TOKEN" \
       kubernetes_host="$K8S_HOST" \
@@ -190,7 +190,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     Success! Data written to: auth/kubernetes/config
     ```
   - **Vault** passes Client Application's ***JWT***:
-    ```
+    ```shell
     $ vault write auth/kubernetes/config \
       kubernetes_host="$K8S_HOST" \
       kubernetes_ca_cert="$SA_CA_CRT" \
@@ -198,7 +198,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     Success! Data written to: auth/kubernetes/config
     ```
     ^^ **NOTE**: ```issuer``` can be disovered via:
-    ```
+    ```shell
     $ echo '{"apiVersion": "authentication.k8s.io/v1", "kind": "TokenRequest"}' \
       | kubectl create -f- --raw /api/v1/namespaces/default serviceaccounts/default/token \
       | jq -r '.status.token' \
@@ -208,7 +208,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     {"aud":["https://kubernetes.default.svc.cluster.local","k3s"],"exp":1654283613,"iat":1654280013,"iss":"https://kubernetes.default.svc.cluster.local","kubernetes.io":{"namespace":"default","serviceaccount":{"name":"default","uid":"dd27afbb-1c5b-4bcf-8365-17801a7f05f3"}},"nbf":1654280013,"sub":"system:serviceaccount:default:default"}
     ```
     **OR**
-    ```
+    ```shell
     $ kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer'
 
     https://kubernetes.default.svc.cluster.local
@@ -216,7 +216,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     The ```issuer``` discovery is documented here @ https://www.vaultproject.io/docs/auth/kubernetes#discovering-the-service-account-issuer
     > **CAVEAT**: https://www.vaultproject.io/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt
 - Create a **Vault K8s Auth Method** ```role``` that will map the K8s **serviceaccount** to the **Vault** ```policy``` created previously
-    ```
+    ```shell
     $ vault write auth/kubernetes/role/example \
       bound_service_account_names=vault-auth \
       bound_service_account_namespaces=default \
@@ -225,7 +225,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
       ttl=24h
     Success! Data written to: auth/kubernetes/role/example
     ```
-    ```
+    ```shell
     disable_iss_validation=true
     ```
 ###### 3. Determine Vault Address from K8s Application Perspective
@@ -239,7 +239,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
 >
 - Since the underlying runtime networking is on **Docker Networking**, access services running on the Docker Host Machine via the **hostname** ```host.docker.intenal``` (and/or in our **K3d** case, ```host.k3d.internal``` - should resolve to the same IP as ```host.docker.internal```)
 - Find the **K3d** Nodes (running as a **Docker** Container)
-    ```
+    ```shell
     $ docker ps | grep -i auth-client-jwt
     0cdc109e6ebb   ghcr.io/k3d-io/k3d-tools:5.4.1         "/app/k3d-tools noop"    21 hours ago   Up 21 hours                                     k3d-auth-client-jwt-tools
     cda4169a54ba   ghcr.io/k3d-io/k3d-proxy:5.4.1         "/bin/sh -c nginx-pr…"   21 hours ago   Up 21 hours   80/tcp, 0.0.0.0:53682->6443/tcp   k3d-auth-client-jwt-serverlb
@@ -249,7 +249,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     ```
     ^^ ```-server-``` and ```-agent--``` containers are **K3d** Master or Worker Nodes.
 - **Exec** into a Master or Worker **K3d** Node, find the IP to be used to access **Vault API**, and test that API access. (In our case, the ```host.docker.internal``` IP *should* match the ```host.k3d.internal``` IP)
-    ```
+    ```shell
     $ docker exec -it k3d-auth-client-jwt-server-0 sh
     / # 
     / # nslookup host.docker.internal
@@ -281,11 +281,11 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     ^^ Capture that ```ip``` and we will use that to embed as an environment variable into the **K8s** application ```pod```
 - **OPTIONAL**: Verify **Vault K8s Auth Method** Configuration
   - Set the environment variable ```EXTERNAL_VAULT_ADDR``` with the ```ip``` harvested above
-    ```
+    ```shell
     $ export EXTERNAL_VAULT_ADDR=192.168.65.2
     ```
   - Define a ```pod``` with a ```container``` in YAML Manifest:
-    ```
+    ```shell
     $ cat > devwebapp.yaml <<EOF
     apiVersion: v1
     kind: Pod
@@ -305,27 +305,27 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     ```
     The ```pod``` is named ```devwebapp``` and runs with the ```vault-auth``` ```serviceaccount```
   - Create the ```devwebapp``` ```pod``` in the ```default``` ```namespace```
-    ```
+    ```shell
     $ kubectl apply --filename devwebapp.yaml --namespace default
     pod/devwebapp created
     ```
   - Display the ```pod``` in the ```default``` ```namespace```
-    ```
+    ```shell
     $ kubectl -n default get pod
     NAME        READY   STATUS    RESTARTS   AGE
     devwebapp   1/1     Running   0          110s
     ```
     Wait until the ```devwebapp``` pod is running and ready (```1/1```).
   - Exec into the pod container interactively and set environment variable **KUBE_TOKEN**. Stay in the container for the next step.
-    ```
+    ```shell
     $ export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
     ```
   - Set environment variable **VAULT_ADDR**
-    ```
+    ```shell
     $ export VAULT_ADDR=http://$(dig +short host.k3d.internal):8200
     ```
-  - ~~**JWT** from ```pod``` and ```serviceaccount``` ```secret``` **JWT** do not match. Getting ***"permission denied"*** when attempting to ```curl``` to **Vault API** from ```pod```~~ Login from Test Pod Container in ```devwebapp``` and attempt to log in to **Vault** with the ***JWT***.
-    ```
+  - ~~**JWT** from ```pod``` and ```serviceaccount``` ```secret``` **JWT** do not match. Getting ***"permission denied"*** when attempting to ```curl``` to **Vault API** from ```pod```~~ Login from Test Pod Container in ```devwebapp``` and attempt to log in to **Vault** with the ***JWT*** and retrieve the ```client_token```.  With this token, you'll be able to access **Vault** resources as defined by the Policy applied to the token (```token_policies```).
+    ```shell
     $ curl --request POST \
       --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "example"}' \
       $VAULT_ADDR/v1/auth/kubernetes/login | jq
@@ -365,13 +365,10 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
           "orphan": true
         }
       }
-    ```
-
-  - 
+    ``` 
   - asdf
 - asdf
-- 
-- **Reference**: https://k3d.io/v5.2.2/faq/faq/#how-to-access-services-like-a-database-running-on-my-docker-host-machine
+  
 
 
 
@@ -382,15 +379,11 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
 - https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-account
 - https://www.vaultproject.io/docs/platform/k8s/injector
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar
+- https://k3d.io/v5.2.2/faq/faq/#how-to-access-services-like-a-database-running-on-my-docker-host-machine
 
+## Appendix
 
-
-
-
-
-
-
-```
+```shell
 $ vault kv put secret/myapp/config \
       username='appuser' \
       password='suP3rsec(et!' \

@@ -378,7 +378,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
 ## Reference
 - git clone https://github.com/hashicorp/learn-vault-agent.git
 - https://www.vaultproject.io/docs/auth/kubernetes#use-local-service-account-token-as-the-reviewer-jwt
-- - https://www.vaultproject.io/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt
+- https://www.vaultproject.io/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt
 - https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-account
 - https://www.vaultproject.io/docs/platform/k8s/injector
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar

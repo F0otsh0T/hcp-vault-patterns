@@ -15,7 +15,7 @@ https://www.vaultproject.io/docs/auth/kubernetes#use-local-service-account-token
    - PGP/GPG/PASS
    - Vault PKI Engines, Auth, Policies, Certs, Roles, etc.,
 
-External Vault Service should exist ***a priori*** (e.g. ```~/01-infra```)
+External Vault Service should exist ***a priori*** ( e.g. ***[HERE](https://github.com/F0otsh0T/hcp-vault-docker/tree/main/00-vault)*** )
 
 ## Notes
 

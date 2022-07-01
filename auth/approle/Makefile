@@ -121,7 +121,7 @@ auth-approle-get-token: #target
 
 ##########
 # READ SECRET WITH CLIENT TOKEN
-# PERONA: APP
+# PERSONA: APP
 ##########
 .PHONY: auth-approle-read-secret
 auth-approle-read-secret: #target

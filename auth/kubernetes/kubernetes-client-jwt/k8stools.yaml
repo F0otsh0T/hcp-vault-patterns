@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: k8stools
+  namespace: default
+  labels:
+    app: k8stools
+spec:
+  serviceAccountName: vault-auth
+  containers:
+    - name: k8stools
+#      image: burtlo/devwebapp-ruby:k8s
+#      image: dwdraju/alpine-curl-jq
+#      image: praqma/network-multitool:extra
+#      image: praqma/network-multitool:alpine-extra
+      image: wbitt/network-multitool:alpine-extra
+      env:
+        - name: VAULT_ADDR
+          value: "http://192.168.65.2:8200"
+        - name: KUBE_TOKEN
+          value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)

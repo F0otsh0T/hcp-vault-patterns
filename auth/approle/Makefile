@@ -41,7 +41,7 @@ all: vault-policy vault-secrets-enable-kv2 auth-approle-enable auth-approle-writ
 # CREATE VAULT POLICY TO APPLY TO ROLE
 # PERSONA: ADMIN
 ##########
-.PHONY: 
+.PHONY: vault-policy
 vault-policy: #target
 	echo "*******************\n** CREATE POLICY **\n*******************"
 	vault policy write nginx policy-approle.hcl
@@ -121,7 +121,7 @@ auth-approle-get-token: #target
 
 ##########
 # READ SECRET WITH CLIENT TOKEN
-# PERONA: APP
+# PERSONA: APP
 ##########
 .PHONY: auth-approle-read-secret
 auth-approle-read-secret: #target

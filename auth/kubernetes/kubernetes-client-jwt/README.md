@@ -29,6 +29,39 @@ External Vault Service should exist ***a priori*** ( e.g. ***[HERE](https://gith
   - **K8s** Application => **Vault API** (:8200)
   - **Vault K8s Auth Engine** => **Kubernetes API** (:6443)
 
+## Versions
+
+###### Docker Version
+
+```shell
+❯ docker version
+Client:
+ Cloud integration: v1.0.24
+ Version:           20.10.14
+```
+
+###### K3d / K3s Version
+
+```shell
+❯ k3d version
+k3d version v5.4.3
+k3s version v1.23.6-k3s1 (default)
+```
+
+###### Helm Version
+
+```shell
+❯ helm version
+version.BuildInfo{Version:"v3.9.0", GitCommit:"7ceeda6c585217a19a1131663d8cd1f7d641b2a7", GitTreeState:"clean", GoVersion:"go1.18.2"}
+```
+
+###### Vault Version
+
+```shell
+❯ vault version
+Vault v1.11.0 ('ea296ccf58507b25051bc0597379c467046eb2f1+CHANGES'), built 2022-06-17T15:48:44Z
+```
+
 ## Spin up a Kubernetes Cluster
 
 Via **Terraform**:
@@ -38,7 +71,7 @@ https://github.com/F0otsh0T/hcp-vault-docker/tree/main/01-k3d
 Manually via **Shell**:
 
 ```shell
-k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-jwt-pki
+k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* mycluster
 ```
 ```192.168.65.2``` is ```host.docker.internal``` (and ```host.k3d.internal``` in our environment with **K3d**) with an overlay ```IP``` for host node ```127.0.0.1``` or ```0.0.0.0```
 
@@ -54,39 +87,50 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
 ###### 1. Create K8s Resources
 - Create a ```serviceaccount```
 
-    Create a Kubernetes **serviceaccount** named ```vault-auth```
+    Create a Kubernetes **serviceaccount** named ```vault-auth``` with **YAML Manifest** `vault-auth-k8s-clusterrolebinding.yaml`
+    ```YAML
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: vault-auth
+      namespace: default
+    ```
+    Create `serviceaccount`:
 
     ```shell
-    kubectl create serviceaccount vault-auth
+    kubectl create -f vault-auth-k8s-serviceaccount.yaml
+    serviceaccount/vault-auth created
     ```
 
 - Define ```clusterrolebinding```
 
     Create a Kubernetes **clusterrolebinding** resource with **clusterrole** of ```system:auth-delegator``` so that it applies that spec to the client of Vault (via **serviceaccount** <= **clusterrolebinding** <= **clusterrole**).
 
-    Use the following **YAML manifest** as an example to create the **clusterrolebinding** resource with filename == ```vault-auth-service-account.yaml```:
+    Use the following **YAML manifest** as an example to create the **clusterrolebinding** resource with filename == `vault-auth-k8s-clusterrolebinding.yaml`:
 
-    ```yaml
+    ```YAML
     ---
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
-    name: role-tokenreview-binding
-    namespace: default
+      name: role-tokenreview-binding
+      namespace: default
     roleRef:
-    apiGroup: rbac.authorization.k8s.io
-    kind: ClusterRole
-    name: system:auth-delegator
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:auth-delegator
     subjects:
     - kind: ServiceAccount
-    name: vault-auth
-    namespace: default
+      name: vault-auth
+      namespace: default
     ```
 
 - Apply ```clusterrolebinding``` manifest to update the ```vault-auth``` ```serviceaccount```
 
     ```shell
-    kubectl apply -f vault-auth-service-account.yaml
+    kubectl create -f vault-auth-k8s-clusterrolebinding.yaml
+    clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
     ```
 
 ###### 2. Harvesting Data Needed from K8s Resources
@@ -158,7 +202,17 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     ```
     > NOTE: From **Vault**'s perspective, this network path must be reachable as it is attempting to contact the **Kubernetes API**. The output from the above command from the **K8s** cluster's perspective may or may not match up exactly with **Vault**'s view of the network.
     >
-    > In this case, because **Vault** is running in the same Docker Runtime environment as the **K8s** Cluster, probably need to understand the ```ip``` that will get you to the **HOST** IP point of presence (*host.docker.internal* or *host.k3d.internal* @ 192.168.65.2 in our case).
+    > In this case, because **Vault** is running in the same Docker Runtime environment as the **K8s** (**K3d/K3s**) Cluster, probably need to understand the `IP` that will get you to the **HOST** `IP` point of presence (*host.docker.internal* or *host.k3d.internal* @ 192.168.65.2 in our case).
+    ```shell
+    ❯ docker ps | grep -i mycluster
+    9a12807d83be   ghcr.io/k3d-io/k3d-proxy:latest               "/bin/sh -c nginx-pr…"   13 days ago   Up 4 days   0.0.0.0:30080->30080/tcp, 80/tcp, 0.0.0.0:30443->30443/tcp, 0.0.0.0:51122->6443/tcp   k3d-mycluster-serverlb
+    15fbadd9f74a   rancher/k3s:v1.23.6-k3s1                      "/bin/k3d-entrypoint…"   13 days ago   Up 4 days                                                                                         k3d-mycluster-agent-1
+    e0f6fe74c70e   rancher/k3s:v1.23.6-k3s1                      "/bin/k3d-entrypoint…"   13 days ago   Up 4 days                                                                                         k3d-mycluster-agent-0
+    0334c24bee37   rancher/k3s:v1.23.6-k3s1                      "/bin/k3d-entrypoint…"   13 days ago   Up 4 days                                                                                         k3d-mycluster-server-0
+
+    ❯ docker exec -it k3d-mycluster-server-0 nslookup host.docker.internal | awk '/^Address: / { print $2 }'
+    192.168.65.2
+    ```
     - Combine the two above pieces of information and the ```K8S_HOST``` needs to be:
     ```shell
     export K8S_HOST=https://192.168.65.2:53682
@@ -171,9 +225,9 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
 
 ###### 1. Set Vault Policy
 - Will re-use this policy later in the excercise
-- For now, reference the ~/02-pki-build/policy/p.global.crudl.hcl or some other policy set with enough permissions to complete these steps
+- For now, reference the `p.global.crudl.hcl` (Note: this policy has elevated privileges) or some other policy set with enough permissions to complete these steps
     ```shell
-    $ vault policy write global.crudl ~/02-pki-build/policy/p.global.crudl.hcl
+    $ vault policy write global.crudl p.global.crudl.hcl
     ```
 
 ###### 2. Enable and configure the [***Vault K8s Auth Method***](https://www.vaultproject.io/docs/auth/kubernetes#configuration)
@@ -183,8 +237,8 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     Success! Enabled kubernetes auth method at: kubernetes/
     ```
 - Tell **Vault** how to communicate with the K8s Cluster (with data harvested from previous steps and set in environment variables ```SA_JWT_TOKEN```, ```K8S_HOST```, and ```SA_CA_CRT```).
-  The ```auth/kubernetes/config``` we are using in this instance omits the line for ```      token_reviewer_jwt="$SA_JWT_TOKEN" \``` in the original instructions to accomodate **Kubernetes v1.21+** changes to ```iss``` and short-lived tokens.
-  - **Vault** passes it's own ***JWT***:
+  The ```auth/kubernetes/config``` we are using in this excercis omits the line for ```      token_reviewer_jwt="$SA_JWT_TOKEN" \``` in the original instructions to accomodate **Kubernetes v1.21+** changes to ```iss``` and short-lived tokens.
+  - ~~**Vault** passes it's own ***JWT***~~:
     ```shell
     $ vault write auth/kubernetes/config \
       token_reviewer_jwt="$SA_JWT_TOKEN" \
@@ -193,7 +247,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
       issuer="https://kubernetes.default.svc.cluster.local"
     Success! Data written to: auth/kubernetes/config
     ```
-  - **Vault** passes Client Application's ***JWT***:
+  - **Vault** passes Client Application's ***JWT*** (Use this method for Kubernetes v1.21+ changes to `iss` and short-lived-tokens):
     ```shell
     $ vault write auth/kubernetes/config \
       kubernetes_host="$K8S_HOST" \
@@ -244,17 +298,17 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
 - Since the underlying runtime networking is on **Docker Networking**, access services running on the Docker Host Machine via the **hostname** ```host.docker.intenal``` (and/or in our **K3d** case, ```host.k3d.internal``` - should resolve to the same IP as ```host.docker.internal```)
 - Find the **K3d** Nodes (running as a **Docker** Container)
     ```shell
-    $ docker ps | grep -i auth-client-jwt
-    0cdc109e6ebb   ghcr.io/k3d-io/k3d-tools:5.4.1         "/app/k3d-tools noop"    21 hours ago   Up 21 hours                                     k3d-auth-client-jwt-tools
-    cda4169a54ba   ghcr.io/k3d-io/k3d-proxy:5.4.1         "/bin/sh -c nginx-pr…"   21 hours ago   Up 21 hours   80/tcp, 0.0.0.0:53682->6443/tcp   k3d-auth-client-jwt-serverlb
-    426d2abb8b48   rancher/k3s:v1.22.7-k3s1               "/bin/k3d-entrypoint…"   21 hours ago   Up 21 hours                                     k3d-auth-client-jwt-agent-1
-    8d241b540948   rancher/k3s:v1.22.7-k3s1               "/bin/k3d-entrypoint…"   21 hours ago   Up 21 hours                                     k3d-auth-client-jwt-agent-0
-    3ea2aeda77c1   rancher/k3s:v1.22.7-k3s1               "/bin/k3d-entrypoint…"   21 hours ago   Up 21 hours                                     k3d-auth-client-jwt-server-0
+    ❯ docker ps --filter "name=mycluster"
+    CONTAINER ID   IMAGE                             COMMAND                  CREATED       STATUS      PORTS                                                                                 NAMES
+    9a12807d83be   ghcr.io/k3d-io/k3d-proxy:latest   "/bin/sh -c nginx-pr…"   13 days ago   Up 4 days   0.0.0.0:30080->30080/tcp, 80/tcp, 0.0.0.0:30443->30443/tcp, 0.0.0.0:51122->6443/tcp   k3d-mycluster-serverlb
+    15fbadd9f74a   rancher/k3s:v1.23.6-k3s1          "/bin/k3d-entrypoint…"   13 days ago   Up 4 days                                                                                         k3d-mycluster-agent-1
+    e0f6fe74c70e   rancher/k3s:v1.23.6-k3s1          "/bin/k3d-entrypoint…"   13 days ago   Up 4 days                                                                                         k3d-mycluster-agent-0
+    0334c24bee37   rancher/k3s:v1.23.6-k3s1          "/bin/k3d-entrypoint…"   13 days ago   Up 4 days                                                                                         k3d-mycluster-server-0
     ```
     ^^ ```-server-``` and ```-agent--``` containers are **K3d** Master or Worker Nodes.
 - **Exec** into a Master or Worker **K3d** Node, find the IP to be used to access **Vault API**, and test that API access. (In our case, the ```host.docker.internal``` IP *should* match the ```host.k3d.internal``` IP)
     ```shell
-    $ docker exec -it k3d-auth-client-jwt-server-0 sh
+    $ docker exec -it k3d-mycluster-server-0 sh
     / # 
     / # nslookup host.docker.internal
     Server:		127.0.0.11
@@ -290,36 +344,39 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     ```
   - Define a ```pod``` with a ```container``` in YAML Manifest:
     ```shell
-    $ cat > devwebapp.yaml <<EOF
+    $ cat > k8stools.yaml <<EOF
     apiVersion: v1
     kind: Pod
     metadata:
-    name: devwebapp
-    labels:
-        app: devwebapp
+      name: k8stools
+      namespace: default
+      labels:
+        app: k8stools
     spec:
-    serviceAccountName: vault-auth
-    containers:
-        - name: devwebapp
-        image: burtlo/devwebapp-ruby:k8s
-        env:
+      serviceAccountName: vault-auth
+      containers:
+        - name: k8stools
+    #      image: praqma/network-multitool:extra
+    #      image: praqma/network-multitool:alpine-extra
+          image: wbitt/network-multitool:alpine-extra
+          env:
             - name: VAULT_ADDR
-            value: "http://$EXTERNAL_VAULT_ADDR:8200"
+              value: "http://$EXTERNAL_VAULT_ADDR:8200"
     EOF
     ```
-    The ```pod``` is named ```devwebapp``` and runs with the ```vault-auth``` ```serviceaccount```
-  - Create the ```devwebapp``` ```pod``` in the ```default``` ```namespace```
+    The ```pod``` is named ```k8stools``` and runs with the ```vault-auth``` ```serviceaccount```
+  - Create the ```k8stools``` ```pod``` in the ```default``` ```namespace```
     ```shell
-    $ kubectl apply --filename devwebapp.yaml --namespace default
-    pod/devwebapp created
+    $ kubectl create -f k8stools.yaml --namespace default
+    pod/k8stools created
     ```
   - Display the ```pod``` in the ```default``` ```namespace```
     ```shell
     $ kubectl -n default get pod
     NAME        READY   STATUS    RESTARTS   AGE
-    devwebapp   1/1     Running   0          110s
+    k8stools   1/1     Running   0          110s
     ```
-    Wait until the ```devwebapp``` pod is running and ready (```1/1```).
+    Wait until the ```k8stools``` pod is running and ready (```1/1```).
   - Exec into the pod container interactively and set environment variable **KUBE_TOKEN**. Stay in the container for the next step.
     ```shell
     $ export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
@@ -328,7 +385,7 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     ```shell
     $ export VAULT_ADDR=http://$(dig +short host.k3d.internal):8200
     ```
-  - ~~**JWT** from ```pod``` and ```serviceaccount``` ```secret``` **JWT** do not match. Getting ***"permission denied"*** when attempting to ```curl``` to **Vault API** from ```pod```~~ Login from Test Pod Container in ```devwebapp``` and attempt to log in to **Vault** with the ***JWT*** and retrieve the ```client_token```.  With this token, you'll be able to access **Vault** resources as defined by the Policy applied to the token (```token_policies```).
+  - ~~**JWT** from ```pod``` and ```serviceaccount``` ```secret``` **JWT** do not match. Getting ***"permission denied"*** when attempting to ```curl``` to **Vault API** from ```pod```~~ Login from Test Pod Container in ```k8stools``` and attempt to log in to **Vault** with the ***JWT*** and retrieve the ```client_token```.  With this token, you'll be able to access **Vault** resources as defined by the Policy applied to the token (```token_policies```).
     ```shell
     $ curl --request POST \
       --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "example"}' \

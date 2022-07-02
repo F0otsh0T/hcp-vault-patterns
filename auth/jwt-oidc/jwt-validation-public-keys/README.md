@@ -24,6 +24,39 @@ This method can be useful if Kubernetes' API is not reachable from Vault or if y
    - PGP/GPG/PASS
    - Vault **[Initialized & Unsealed](https://learn.hashicorp.com/tutorials/vault/getting-started-deploy)**
 
+## Versions
+
+###### Docker Version
+
+```shell
+❯ docker version
+Client:
+ Cloud integration: v1.0.24
+ Version:           20.10.14
+```
+
+###### K3d / K3s Version
+
+```shell
+❯ k3d version
+k3d version v5.4.3
+k3s version v1.23.6-k3s1 (default)
+```
+
+###### Helm Version
+
+```shell
+❯ helm version
+version.BuildInfo{Version:"v3.9.0", GitCommit:"7ceeda6c585217a19a1131663d8cd1f7d641b2a7", GitTreeState:"clean", GoVersion:"go1.18.2"}
+```
+
+###### Vault Version
+
+```shell
+❯ vault version
+Vault v1.11.0 ('ea296ccf58507b25051bc0597379c467046eb2f1+CHANGES'), built 2022-06-17T15:48:44Z
+```
+
 ## Spin up a Kubernetes Cluster
 
 Via **Terraform**:
@@ -220,8 +253,8 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 
 ###### JWK Conversion
 
-- https://www.npmjs.com/package/pem-jwk
-- https://github.com/dannycoates/pem-jwk
+- ~~https://www.npmjs.com/package/pem-jwk~~
+- ~~https://github.com/dannycoates/pem-jwk~~
 - https://8gwifi.org/jwkconvertfunctions.jsp
 
 ###### API

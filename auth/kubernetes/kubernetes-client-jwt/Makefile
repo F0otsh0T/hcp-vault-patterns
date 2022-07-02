@@ -1,5 +1,5 @@
 ################################################################################
-# VAULT AUTH - APPROLE
+# VAULT AUTH - KUBERNETES CLIENT JWT
 #
 # @file
 # @version 0.1
@@ -7,7 +7,7 @@
 ##########
 # PREREQUISITES
 #   - Docker
-#   - Kind
+#   - Kubernetes: K3d / K3s
 #   - kubectl
 #   - Vault CLI
 #   - Terraform

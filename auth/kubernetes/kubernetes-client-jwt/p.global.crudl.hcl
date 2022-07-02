@@ -64,26 +64,6 @@ path "cubbyhole/*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-# Allow management of secrets path afw_kv (crudl)
-path "afw_kv/*" {
-    capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-# Allow management of secrets path afw_ncvsrx_kv (crudl)
-path "afw_ncvsrx_kv/*" {
-    capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-# Allow management of secrets path afw_ncvsrx_var_kv (crudl)
-path "afw_ncvsrx_var_kv/*" {
-    capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-# Allow management of secrets path afw_ssh (crudl)
-path "afw_ssh/*" {
-    capabilities = ["create", "read", "update", "delete", "list"]
-}
-
 # Allow management of secrets path aws (crudl)
 path "aws/*" {
     capabilities = ["create", "read", "update", "delete", "list"]

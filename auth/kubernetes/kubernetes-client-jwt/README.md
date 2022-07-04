@@ -345,23 +345,32 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
   - Define a ```pod``` with a ```container``` via `deployment` YAML Manifest:
     ```shell
     $ cat > k8stools.yaml <<EOF
-    apiVersion: v1
-    kind: Pod
+    apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: k8stools
-      namespace: default
       labels:
         app: k8stools
     spec:
-      serviceAccountName: vault-auth
-      containers:
-        - name: k8stools
-    #      image: praqma/network-multitool:extra
-    #      image: praqma/network-multitool:alpine-extra
-          image: wbitt/network-multitool:alpine-extra
-          env:
-            - name: VAULT_ADDR
-              value: "http://$EXTERNAL_VAULT_ADDR:8200"
+      replicas: 1
+      selector:
+        matchLabels:
+          app: k8stools
+      template:
+        metadata:
+          labels:
+            app: k8stools
+        spec:
+          containers:
+          - name: k8stools
+            image: wbitt/network-multitool:alpine-extra
+            env:
+              - name: VAULT_ADDR
+                value: "http://$EXTERNAL_VAULT_ADDR:8200"
+              - name: KUBE_TOKEN
+                value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+            ports:
+            - containerPort: 80
     EOF
     ```
     The ```pod``` is named ```k8stools``` and runs with the ```vault-auth``` ```serviceaccount```

@@ -115,11 +115,14 @@ Vault v1.11.0 ('ea296ccf58507b25051bc0597379c467046eb2f1+CHANGES'), built 2022-0
 
 ## Vault Authentication
 
-There are a number of supported **Vault** Auth Methods and can be selected via the **Kubernetes** `resource` (`deployment`, `pod`, `statefulset`) spec and annotations:
+There are a number of supported **Vault** [Auth Methods](https://www.vaultproject.io/docs/agent/autoauth/methods) and can be selected via the **Kubernetes** `resource` (`deployment`, `pod`, `statefulset`) spec and [annotations](https://www.vaultproject.io/docs/platform/k8s/injector/annotations#vault-hashicorp-com-auth-type):
 
 - [Kubernetes (default)](https://www.vaultproject.io/docs/platform/k8s/injector/examples#deployments-statefulsets-etc)
 - [AppRole](https://www.vaultproject.io/docs/platform/k8s/injector/examples#approle-authentication)
 - OIDC JWT Public Key (?? Needs to be validated)
+
+**Vault** Authentication Methods specified here @ https://www.vaultproject.io/docs/platform/k8s/injector/annotations#vault-hashicorp-com-auth-type
+
 
 
 ## Access External Vault
@@ -347,7 +350,7 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
   ```
 - Patch `deployment` with **Vault** Agent Injector `annotations`
   ```shell
-  ❯ cat > vault-secret.yaml <<EOF
+  ❯ cat > patch-auth-k8s.yaml <<EOF
   spec:
     template:
       spec:
@@ -366,7 +369,7 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
   ```
 
   ```shell
-  kubectl -n default patch deployment k8stools-with-annotations --patch "$(cat patch.yaml)"
+  kubectl -n default patch deployment k8stools-with-annotations --patch "$(cat patch-auth-k8s.yaml)"
   deployment.apps/k8stools-with-annotations patched
   
   ❯ kubectl get pods

@@ -47,7 +47,7 @@ External Vault Service should exist ***a priori*** ( e.g. ***[HERE](https://gith
 
 1. https://github.com/F0otsh0T/hcp-vault-docker
 2. https://github.com/F0otsh0T/hcp-vault-patterns/tree/main/auth/kubernetes/kubernetes-client-jwt
-3. https://github.com/F0otsh0T/hcp-vault-patterns/tree/main/auth/approle#kv2-secrets-engine
+3. https://github.com/F0otsh0T/hcp-vault-patterns/tree/development/secrets/kv
  
 
 ## Synopsis:

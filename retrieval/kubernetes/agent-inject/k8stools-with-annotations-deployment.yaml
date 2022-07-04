@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8stools-with-annotations
+  labels:
+    app: k8stools-with-annotations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8stools-with-annotations
+  template:
+    metadata:
+      labels:
+        app: k8stools-with-annotations
+    spec:
+      containers:
+      - name: k8stools-with-annotations
+        image: wbitt/network-multitool:alpine-extra
+        env:
+          - name: VAULT_ADDR
+            value: "http://192.168.65.2:8200"
+          - name: KUBE_TOKEN
+            value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+        ports:
+        - containerPort: 80

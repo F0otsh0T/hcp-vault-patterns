@@ -342,41 +342,54 @@ Set your ```VAULT_ADDR``` and ```VAULT_TOKEN``` (or whatever auth method you are
     ```shell
     $ export EXTERNAL_VAULT_ADDR=192.168.65.2
     ```
-  - Define a ```pod``` with a ```container``` in YAML Manifest:
+  - Define a ```pod``` with a ```container``` via `deployment` YAML Manifest:
     ```shell
     $ cat > k8stools.yaml <<EOF
-    apiVersion: v1
-    kind: Pod
+    apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: k8stools
-      namespace: default
       labels:
         app: k8stools
     spec:
-      serviceAccountName: vault-auth
-      containers:
-        - name: k8stools
-    #      image: praqma/network-multitool:extra
-    #      image: praqma/network-multitool:alpine-extra
-          image: wbitt/network-multitool:alpine-extra
-          env:
-            - name: VAULT_ADDR
-              value: "http://$EXTERNAL_VAULT_ADDR:8200"
+      replicas: 1
+      selector:
+        matchLabels:
+          app: k8stools
+      template:
+        metadata:
+          labels:
+            app: k8stools
+        spec:
+          containers:
+          - name: k8stools
+            image: wbitt/network-multitool:alpine-extra
+            env:
+              - name: VAULT_ADDR
+                value: "http://$EXTERNAL_VAULT_ADDR:8200"
+              - name: KUBE_TOKEN
+                value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+            ports:
+            - containerPort: 80
     EOF
     ```
     The ```pod``` is named ```k8stools``` and runs with the ```vault-auth``` ```serviceaccount```
   - Create the ```k8stools``` ```pod``` in the ```default``` ```namespace```
     ```shell
-    $ kubectl create -f k8stools.yaml --namespace default
-    pod/k8stools created
+    ❯ kubectl create -f k8stools-deployment.yaml
+    deployment.apps/k8stools created
+
+    ❯ kubectl get deploy
+    NAME                   READY   UP-TO-DATE   AVAILABLE   AGE
+    k8stools               1/1     1            1           2s
     ```
   - Display the ```pod``` in the ```default``` ```namespace```
     ```shell
-    $ kubectl -n default get pod
-    NAME        READY   STATUS    RESTARTS   AGE
-    k8stools   1/1     Running   0          110s
+    ❯ kubectl get pods
+    NAME                                    READY   STATUS    RESTARTS   AGE
+    k8stools-6556ccdf85-txrgv               1/1     Running   0          110s
     ```
-    Wait until the ```k8stools``` pod is running and ready (```1/1```).
+    Wait until the `k8stools` pod is running and ready (```1/1```).
   - Exec into the pod container interactively and set environment variable **KUBE_TOKEN**. Stay in the container for the next step.
     ```shell
     $ export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)

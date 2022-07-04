@@ -24,6 +24,7 @@ alias:
 [![Kubernetes Auth Secret Zero](https://www.datocms-assets.com/2885/1643214683-vault-k8s-auth-blog.png?fit=max&fm=webp&q=80&w=2500)](https://www.hashicorp.com/blog/kubernetes-vault-integration-via-sidecar-agent-injector-vs-csi-provider)
 
 - https://www.vaultproject.io/docs/platform/k8s/injector
+- https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault#deploy-service-and-endpoints-to-address-an-external-vault
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar
 - https://www.hashicorp.com/blog/kubernetes-vault-integration-via-sidecar-agent-injector-vs-csi-provider
 
@@ -51,11 +52,24 @@ External Vault Service should exist ***a priori*** ( e.g. ***[HERE](https://gith
 
 ## Synopsis:
 
-1. Decide on External **Vault** access options in [Access External Vault](#access-external-vault) section below ([LINK](#access-external-vault))
-2. Create **Vault** Sidecar Agent Injector **Helm** `install` based on decision above ([LINK](#install-agent-injector))
-3. Verify Agent Injector `serviceaccount` and `secret` ([LINK](#verify-agent-injector-serviceaccount-and-secret))
-4. Deploy and Annotate Application ([LINK](#deploy-and-annotate-application))
-5. Verify Secrets are Injected into `pods` ([LINK](#verify-secrets-are-injected-into-pods))
+- [HashiCorp Vault Retrieval: Kubernetes Sidecar Agent Injector](#hashicorp-vault-retrieval-kubernetes-sidecar-agent-injector)
+  - [PREREQUISITES](#prerequisites)
+      - [This Repo builds on the following:](#this-repo-builds-on-the-following)
+  - [Synopsis:](#synopsis)
+  - [Versions](#versions)
+          - [Docker Version](#docker-version)
+          - [K3d / K3s Version](#k3d--k3s-version)
+          - [Helm Version](#helm-version)
+          - [Vault Version](#vault-version)
+  - [Vault Authentication](#vault-authentication)
+  - [Access External Vault](#access-external-vault)
+      - [Two Options:](#two-options)
+      - [Application Perspective](#application-perspective)
+  - [Install Agent Injector](#install-agent-injector)
+  - [Verify Agent Injector `serviceaccount` and `secret`](#verify-agent-injector-serviceaccount-and-secret)
+  - [Deploy and Annotate Application](#deploy-and-annotate-application)
+  - [Verify Secrets are Injected into `pods`](#verify-secrets-are-injected-into-pods)
+  - [References](#references)
 
 ## Versions
 
@@ -89,6 +103,15 @@ version.BuildInfo{Version:"v3.9.0", GitCommit:"7ceeda6c585217a19a1131663d8cd1f7d
 ❯ vault version
 Vault v1.11.0 ('ea296ccf58507b25051bc0597379c467046eb2f1+CHANGES'), built 2022-06-17T15:48:44Z
 ```
+
+## Vault Authentication
+
+There are a number of supported **Vault** Auth Methods and can be selected via the **Kubernetes** `resource` (`deployment`, `pod`, `statefulset`) spec and annotations:
+
+- [Kubernetes (default)](https://www.vaultproject.io/docs/platform/k8s/injector/examples#deployments-statefulsets-etc)
+- [AppRole](https://www.vaultproject.io/docs/platform/k8s/injector/examples#approle-authentication)
+- OIDC 
+
 
 ## Access External Vault
 
@@ -366,6 +389,8 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
 
 - https://www.vaultproject.io/docs/platform/k8s/injector
 - https://www.vaultproject.io/docs/platform/k8s/injector/annotations
+- https://www.vaultproject.io/docs/platform/k8s/injector/examples
+- https://www.vaultproject.io/docs/agent/autoauth
 - https://learn.hashicorp.com/tutorials/vault/agent-kubernetes
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault

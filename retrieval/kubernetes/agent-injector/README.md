@@ -28,6 +28,28 @@ alias:
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar
 - https://www.hashicorp.com/blog/kubernetes-vault-integration-via-sidecar-agent-injector-vs-csi-provider
 
+## Table of Contents:
+
+- [HashiCorp Vault Retrieval: Kubernetes Sidecar Agent Injector](#hashicorp-vault-retrieval-kubernetes-sidecar-agent-injector)
+  - [Table of Contents:](#table-of-contents)
+  - [PREREQUISITES](#prerequisites)
+      - [This Repo builds on the following:](#this-repo-builds-on-the-following)
+  - [Synopsis](#synopsis)
+  - [Versions](#versions)
+          - [Docker Version](#docker-version)
+          - [K3d / K3s Version](#k3d--k3s-version)
+          - [Helm Version](#helm-version)
+          - [Vault Version](#vault-version)
+  - [Vault Authentication](#vault-authentication)
+  - [Access External Vault](#access-external-vault)
+      - [Two Options:](#two-options)
+      - [Application Perspective](#application-perspective)
+  - [Install Agent Injector](#install-agent-injector)
+  - [Verify Agent Injector `serviceaccount` and `secret`](#verify-agent-injector-serviceaccount-and-secret)
+  - [Deploy and Annotate Application](#deploy-and-annotate-application)
+  - [Verify Secrets are Injected into `pods`](#verify-secrets-are-injected-into-pods)
+  - [References](#references)
+
 ## PREREQUISITES
 
    - Docker
@@ -48,28 +70,15 @@ External Vault Service should exist ***a priori*** ( e.g. ***[HERE](https://gith
 1. https://github.com/F0otsh0T/hcp-vault-docker
 2. https://github.com/F0otsh0T/hcp-vault-patterns/tree/main/auth/kubernetes/kubernetes-client-jwt
 3. https://github.com/F0otsh0T/hcp-vault-patterns/tree/development/secrets/kv
- 
 
-## Synopsis:
+## Synopsis
 
-- [HashiCorp Vault Retrieval: Kubernetes Sidecar Agent Injector](#hashicorp-vault-retrieval-kubernetes-sidecar-agent-injector)
-  - [PREREQUISITES](#prerequisites)
-      - [This Repo builds on the following:](#this-repo-builds-on-the-following)
-  - [Synopsis:](#synopsis)
-  - [Versions](#versions)
-          - [Docker Version](#docker-version)
-          - [K3d / K3s Version](#k3d--k3s-version)
-          - [Helm Version](#helm-version)
-          - [Vault Version](#vault-version)
-  - [Vault Authentication](#vault-authentication)
-  - [Access External Vault](#access-external-vault)
-      - [Two Options:](#two-options)
-      - [Application Perspective](#application-perspective)
-  - [Install Agent Injector](#install-agent-injector)
-  - [Verify Agent Injector `serviceaccount` and `secret`](#verify-agent-injector-serviceaccount-and-secret)
-  - [Deploy and Annotate Application](#deploy-and-annotate-application)
-  - [Verify Secrets are Injected into `pods`](#verify-secrets-are-injected-into-pods)
-  - [References](#references)
+1. Select **Vault** Authentication Method ([LINK](#vault-authentication))
+2. Decide on External **Vault** access options in [Access External Vault](#access-external-vault) section below ([LINK](#access-external-vault))
+3. Create **Vault** Sidecar Agent Injector **Helm** `install` based on decision above ([LINK](#install-agent-injector))
+4. Verify Agent Injector `serviceaccount` and `secret` ([LINK](#verify-agent-injector-serviceaccount-and-secret))
+5. Deploy and Annotate Application ([LINK](#deploy-and-annotate-application))
+6. Verify Secrets are Injected into `pods` ([LINK](#verify-secrets-are-injected-into-pods))
 
 ## Versions
 
@@ -110,7 +119,7 @@ There are a number of supported **Vault** Auth Methods and can be selected via t
 
 - [Kubernetes (default)](https://www.vaultproject.io/docs/platform/k8s/injector/examples#deployments-statefulsets-etc)
 - [AppRole](https://www.vaultproject.io/docs/platform/k8s/injector/examples#approle-authentication)
-- OIDC 
+- OIDC JWT Public Key (?? Needs to be validated)
 
 
 ## Access External Vault

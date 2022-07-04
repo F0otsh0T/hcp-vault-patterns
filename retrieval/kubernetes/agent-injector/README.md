@@ -42,7 +42,7 @@ alias:
 
 External Vault Service should exist ***a priori*** ( e.g. ***[HERE](https://github.com/F0otsh0T/hcp-vault-docker/tree/main/00-vault)*** )
 
-####This Repo builds on the following:
+#### This Repo builds on the following:
 
 1. https://github.com/F0otsh0T/hcp-vault-docker
 2. https://github.com/F0otsh0T/hcp-vault-patterns/tree/main/auth/kubernetes/kubernetes-client-jwt
@@ -94,7 +94,7 @@ Vault v1.11.0 ('ea296ccf58507b25051bc0597379c467046eb2f1+CHANGES'), built 2022-0
 
 #### Two Options:
 
-- Hard code External Vault IP into each Kubernetes application (Pods
+- Hard code External Vault IP into each of your Kubernetes applications.
 - Create Kubernetes **[Service](https://kubernetes.io/docs/concepts/services-networking/service/)** and **API [Endpoint](https://kubernetes.io/docs/concepts/services-networking/service/#services-without-selectors)** exposing External Vault API inside of Kubernetes so that Kubernetes applications (Pods) can interact with the external Vault via the internal `service` / `endpoint`
   - [Deploy service and endpoints to address an external Vault](https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault#deploy-service-and-endpoints-to-address-an-external-vault)
     ```shell

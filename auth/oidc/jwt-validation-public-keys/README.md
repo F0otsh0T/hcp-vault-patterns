@@ -138,14 +138,20 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
    oidc_response_types       []
    provider_config           map[]
    ```
-5. ^^ **JWT** Auth mount is configured. Ready to configure a role.
+5. Set Vault Policy
+   - Will re-use this policy later in the excercise
+   - For now, reference the `p.global.crudl.hcl` (Note: this policy has elevated privileges) or some other policy set with enough permissions to complete these steps
+    ```shell
+    $ vault policy write global.crudl p.global.crudl.hcl
+    ```
+6. ^^ **JWT** Auth mount is configured. Ready to configure a role.
    ```shell
    vault write auth/jwt/role/my-role \
       role_type="jwt" \
       bound_audiences="${ISSUER}" \
       user_claim="sub" \
       bound_subject="system:serviceaccount:default:default" \
-      policies="default" \
+      policies="global.crudl" \
       ttl="1h"
 
    vault read auth/jwt/role/my-role
@@ -171,14 +177,14 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
    token_no_default_policy    false
    token_num_uses             0
    token_period               0s
-   token_policies             [default]
+   token_policies             [global.crudl]
    token_ttl                  1h
    token_type                 default
    ttl                        1h
    user_claim                 sub
    verbose_oidc_logging       false
    ```
-6. Log in via **JWT** Auth Method Role to retrieve access **token**
+7. Log in via **JWT** Auth Method Role to retrieve access **token**
     - Create NGINX K8s ```deployment``` 
       ```shell
       kubectl create deployment nginx --image=nginx
@@ -202,7 +208,7 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
          --data '{"jwt":"'"${JWT}"'","role":"my-role"}' \
          "${VAULT_ADDR}/v1/auth/jwt/login"
       {
-      "request_id": "129e8219-f7da-56fc-12f5-15eea3d36ab6",
+      "request_id": "129e8219-f7da-56fc-12f5-15eea3d36acutlb6",
       "lease_id": "",
       "renewable": false,
       "lease_duration": 0,

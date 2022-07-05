@@ -307,25 +307,25 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
 
 - Create new `deployment`
   ```shell
-  ❯ cat > k8stools-with-annotations-deployment.yaml <<EOF
+  ❯ cat > k8stools-deploy-auth-k8s.yaml <<EOF
   apiVersion: apps/v1
   kind: Deployment
   metadata:
-    name: k8stools-with-annotations
+    name: k8stools-auth-k8s
     labels:
-      app: k8stools-with-annotations
+      app: k8stools-auth-k8s
   spec:
     replicas: 1
     selector:
       matchLabels:
-        app: k8stools-with-annotations
+        app: k8stools-auth-k8s
     template:
       metadata:
         labels:
-          app: k8stools-with-annotations
+          app: k8stools-auth-k8s
       spec:
         containers:
-        - name: k8stools-with-annotations
+        - name: k8stools-auth-k8s
           image: wbitt/network-multitool:alpine-extra
           env:
             - name: VAULT_ADDR
@@ -337,16 +337,16 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
   EOF
   ```
   ```shell
-  ❯ kubectl create -f k8stools-with-annotations-deployment.yaml
-  deployment.apps/k8stools-with-annotations created
+  ❯ kubectl create -f k8stools-deploy-auth-k8s.yaml
+  deployment.apps/k8stools-auth-k8s created
   ❯ kubectl get deployments
   NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
   vault-agent-injector        1/1     1            1           9h
-  k8stools-with-annotations   1/1     1            1           7s
+  k8stools-auth-k8s   1/1     1            1           7s
   ❯ kubectl get pods
   NAME                                         READY   STATUS    RESTARTS      AGE
   vault-agent-injector-5b7d588456-g6sh8        1/1     Running   2 (91m ago)   9h
-  k8stools-with-annotations-7c7fb48cc9-jbq5z   1/1     Running   0             11s
+  k8stools-auth-k8s-7c7fb48cc9-jbq5z   1/1     Running   0             11s
   ```
 - Patch `deployment` with **Vault** Agent Injector `annotations`
   ```shell
@@ -369,29 +369,29 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
   ```
 
   ```shell
-  kubectl -n default patch deployment k8stools-with-annotations --patch "$(cat patch-auth-k8s.yaml)"
-  deployment.apps/k8stools-with-annotations patched
+  kubectl -n default patch deployment k8stools-auth-k8s --patch "$(cat patch-auth-k8s.yaml)"
+  deployment.apps/k8stools-auth-k8s patched
   
   ❯ kubectl get pods
   NAME                                         READY   STATUS     RESTARTS      AGE
   vault-agent-injector-5b7d588456-g6sh8        1/1     Running    2 (95m ago)   9h
-  k8stools-with-annotations-7c7fb48cc9-jbq5z   1/1     Running    0             3m44s
-  k8stools-with-annotations-568949ddc9-qkcxw   0/2     Init:0/1   0             6s
+  k8stools-auth-k8s-7c7fb48cc9-jbq5z   1/1     Running    0             3m44s
+  k8stools-auth-k8s-568949ddc9-qkcxw   0/2     Init:0/1   0             6s
 
   ❯ kubectl get pods
   NAME                                         READY   STATUS    RESTARTS      AGE
   vault-agent-injector-5b7d588456-g6sh8        1/1     Running   2 (95m ago)   9h
-  k8stools-with-annotations-568949ddc9-qkcxw   2/2     Running   0             48s
+  k8stools-auth-k8s-568949ddc9-qkcxw   2/2     Running   0             48s
   ```
 
 ## Verify Secrets are Injected into `pods`
 
   ```shell
-  ❯ kubectl exec deployments/k8stools-with-annotations -c k8stools-with-annotations cat /vault/secrets/kv
+  ❯ kubectl exec deployments/k8stools-auth-k8s -c k8stools-auth-k8s cat /vault/secrets/kv
   data: map[foo:bar]
   metadata: map[created_time:2022-07-02T17:43:06.26018318Z custom_metadata:<nil> deletion_time: destroyed:false version:1]
 
-  ❯ kubectl exec deployments/k8stools-with-annotations -c k8stools-with-annotations cat /vault/secrets/kv.json
+  ❯ kubectl exec deployments/k8stools-auth-k8s -c k8stools-auth-k8s cat /vault/secrets/kv.json
   {
     "foo": "bar"
   }

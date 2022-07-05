@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: k8stools-with-annotations
+  name: k8stools-auth-oidc-jwt
   labels:
-    app: k8stools-with-annotations
+    app: k8stools-auth-oidc-jwt
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: k8stools-with-annotations
+      app: k8stools-auth-oidc-jwt
   template:
     metadata:
       labels:
-        app: k8stools-with-annotations
+        app: k8stools-auth-oidc-jwt
     spec:
       containers:
-      - name: k8stools-with-annotations
+      - name: k8stools-auth-oidc-jwt
         image: wbitt/network-multitool:alpine-extra
         env:
           - name: VAULT_ADDR

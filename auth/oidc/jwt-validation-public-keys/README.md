@@ -70,6 +70,55 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 ```
 ```192.168.65.2``` is ```host.docker.internal``` (and ```host.k3d.internal``` in our environment with **K3d**) with an overlay ```IP``` for host node ```127.0.0.1``` or ```0.0.0.0```
 
+## Create K8s Resources
+- Create a ```serviceaccount```
+
+    Create a Kubernetes **serviceaccount** named ```vault-auth``` with **YAML Manifest** `vault-auth-k8s-clusterrolebinding.yaml`
+    ```YAML
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: vault-auth
+      namespace: default
+    ```
+    Create `serviceaccount`:
+
+    ```shell
+    kubectl create -f vault-auth-k8s-serviceaccount.yaml
+    serviceaccount/vault-auth created
+    ```
+
+- Define ```clusterrolebinding```
+
+    Create a Kubernetes **clusterrolebinding** resource with **clusterrole** of ```system:auth-delegator``` so that it applies that spec to the client of Vault (via **serviceaccount** <= **clusterrolebinding** <= **clusterrole**).
+
+    Use the following **YAML manifest** as an example to create the **clusterrolebinding** resource with filename == `vault-auth-k8s-clusterrolebinding.yaml`:
+
+    ```YAML
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: role-tokenreview-binding
+      namespace: default
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:auth-delegator
+    subjects:
+    - kind: ServiceAccount
+      name: vault-auth
+      namespace: default
+    ```
+
+- Apply ```clusterrolebinding``` manifest to update the ```vault-auth``` ```serviceaccount```
+
+    ```shell
+    kubectl create -f vault-auth-k8s-clusterrolebinding.yaml
+    clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
+    ```
+
 ## Configuration Steps
 
 1. Fetch the service account signing public key from your cluster's JWKS URI.
@@ -150,7 +199,7 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
       role_type="jwt" \
       bound_audiences="${ISSUER}" \
       user_claim="sub" \
-      bound_subject="system:serviceaccount:default:default" \
+      bound_subject="system:serviceaccount:default:vault-auth" \
       policies="global.crudl" \
       ttl="1h"
 

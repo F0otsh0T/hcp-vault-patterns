@@ -312,6 +312,14 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 - ~~https://github.com/dannycoates/pem-jwk~~
 - https://8gwifi.org/jwkconvertfunctions.jsp
 
+###### kubernetes-k3s-certs-keys
+
+**Kubernetes** `serviceaccount` certs are typically stored at `/etc/kubernetes/pki/sa.key` (*private key*)* & `/etc/kubernetes/pki/sa.pub` (*public key*.  However, **K3s** stores just the *private key* @ `/var/lib/rancher/k3s/server/tls/service.key` and you have to derive the *public key* via:
+
+```shell
+❯ openssl rsa -in /var/lib/rancher/k3s/server/tls/service.key -pubout > sa.pub
+```
+
 ###### API
 ```shell
 curl \

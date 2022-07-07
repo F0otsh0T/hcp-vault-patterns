@@ -16,6 +16,7 @@
 #   - pem-jwk (```npm install -g pem-jwk```)
 #   - jq
 #   - curl
+#   - openssl
 #   - PGP / pass
 #   - Vault PKI Engines, Auth, Policies, Certs, Roles, etc.,
 ################################################################################

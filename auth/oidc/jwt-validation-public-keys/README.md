@@ -70,6 +70,55 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 ```
 ```192.168.65.2``` is ```host.docker.internal``` (and ```host.k3d.internal``` in our environment with **K3d**) with an overlay ```IP``` for host node ```127.0.0.1``` or ```0.0.0.0```
 
+## Create K8s Resources
+- Create a ```serviceaccount```
+
+    Create a Kubernetes **serviceaccount** named ```vault-auth``` with **YAML Manifest** `vault-auth-k8s-clusterrolebinding.yaml`
+    ```YAML
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: vault-auth
+      namespace: default
+    ```
+    Create `serviceaccount`:
+
+    ```shell
+    kubectl create -f vault-auth-k8s-serviceaccount.yaml
+    serviceaccount/vault-auth created
+    ```
+
+- Define ```clusterrolebinding```
+
+    Create a Kubernetes **clusterrolebinding** resource with **clusterrole** of ```system:auth-delegator``` so that it applies that spec to the client of Vault (via **serviceaccount** <= **clusterrolebinding** <= **clusterrole**).
+
+    Use the following **YAML manifest** as an example to create the **clusterrolebinding** resource with filename == `vault-auth-k8s-clusterrolebinding.yaml`:
+
+    ```YAML
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: role-tokenreview-binding
+      namespace: default
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:auth-delegator
+    subjects:
+    - kind: ServiceAccount
+      name: vault-auth
+      namespace: default
+    ```
+
+- Apply ```clusterrolebinding``` manifest to update the ```vault-auth``` ```serviceaccount```
+
+    ```shell
+    kubectl create -f vault-auth-k8s-clusterrolebinding.yaml
+    clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
+    ```
+
 ## Configuration Steps
 
 1. Fetch the service account signing public key from your cluster's JWKS URI.
@@ -138,14 +187,20 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
    oidc_response_types       []
    provider_config           map[]
    ```
-5. ^^ **JWT** Auth mount is configured. Ready to configure a role.
+5. Set Vault Policy
+   - Will re-use this policy later in the excercise
+   - For now, reference the `p.global.crudl.hcl` (Note: this policy has elevated privileges) or some other policy set with enough permissions to complete these steps
+    ```shell
+    $ vault policy write global.crudl p.global.crudl.hcl
+    ```
+6. ^^ **JWT** Auth mount is configured. Ready to configure a role.
    ```shell
    vault write auth/jwt/role/my-role \
       role_type="jwt" \
       bound_audiences="${ISSUER}" \
       user_claim="sub" \
-      bound_subject="system:serviceaccount:default:default" \
-      policies="default" \
+      bound_subject="system:serviceaccount:default:vault-auth" \
+      policies="global.crudl" \
       ttl="1h"
 
    vault read auth/jwt/role/my-role
@@ -171,14 +226,14 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
    token_no_default_policy    false
    token_num_uses             0
    token_period               0s
-   token_policies             [default]
+   token_policies             [global.crudl]
    token_ttl                  1h
    token_type                 default
    ttl                        1h
    user_claim                 sub
    verbose_oidc_logging       false
    ```
-6. Log in via **JWT** Auth Method Role to retrieve access **token**
+7. Log in via **JWT** Auth Method Role to retrieve access **token**
     - Create NGINX K8s ```deployment``` 
       ```shell
       kubectl create deployment nginx --image=nginx
@@ -202,7 +257,7 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
          --data '{"jwt":"'"${JWT}"'","role":"my-role"}' \
          "${VAULT_ADDR}/v1/auth/jwt/login"
       {
-      "request_id": "129e8219-f7da-56fc-12f5-15eea3d36ab6",
+      "request_id": "129e8219-f7da-56fc-12f5-15eea3d36acutlb6",
       "lease_id": "",
       "renewable": false,
       "lease_duration": 0,
@@ -256,6 +311,14 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 - ~~https://www.npmjs.com/package/pem-jwk~~
 - ~~https://github.com/dannycoates/pem-jwk~~
 - https://8gwifi.org/jwkconvertfunctions.jsp
+
+###### kubernetes-k3s-certs-keys
+
+**Kubernetes** `serviceaccount` certs are typically stored at `/etc/kubernetes/pki/sa.key` (*private key*)* & `/etc/kubernetes/pki/sa.pub` (*public key*.  However, **K3s** stores just the *private key* @ `/var/lib/rancher/k3s/server/tls/service.key` and you have to derive the *public key* via:
+
+```shell
+❯ openssl rsa -in /var/lib/rancher/k3s/server/tls/service.key -pubout > sa.pub
+```
 
 ###### API
 ```shell

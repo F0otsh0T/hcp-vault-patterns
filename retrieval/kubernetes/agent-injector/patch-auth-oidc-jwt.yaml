@@ -1,0 +1,19 @@
+# pod patch vault annotations yaml
+spec:
+  template:
+    spec:
+      serviceAccountName: vault-auth
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/auth-type: "jwt"
+        vault.hashicorp.com/auth-path: "auth/jwt"
+        vault.hashicorp.com/role: "my-role"
+        vault.hashicorp.com/namespace: "default"
+        vault.hashicorp.com/agent-inject-secret-kv: "nginx/secret"
+        vault.hashicorp.com/agent-inject-secret-kv.json: "nginx/secret"
+        vault.hashicorp.com/agent-inject-template-kv.json: |
+          {{- with secret "nginx/secret" -}}
+          {{ .Data.data | toJSONPretty }}
+          {{- end }}

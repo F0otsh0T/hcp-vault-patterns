@@ -24,8 +24,31 @@ alias:
 [![Kubernetes Auth Secret Zero](https://www.datocms-assets.com/2885/1643214683-vault-k8s-auth-blog.png?fit=max&fm=webp&q=80&w=2500)](https://www.hashicorp.com/blog/kubernetes-vault-integration-via-sidecar-agent-injector-vs-csi-provider)
 
 - https://www.vaultproject.io/docs/platform/k8s/injector
+- https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault#deploy-service-and-endpoints-to-address-an-external-vault
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar
 - https://www.hashicorp.com/blog/kubernetes-vault-integration-via-sidecar-agent-injector-vs-csi-provider
+
+## Table of Contents:
+
+- [HashiCorp Vault Retrieval: Kubernetes Sidecar Agent Injector](#hashicorp-vault-retrieval-kubernetes-sidecar-agent-injector)
+  - [Table of Contents:](#table-of-contents)
+  - [PREREQUISITES](#prerequisites)
+      - [This Repo builds on the following:](#this-repo-builds-on-the-following)
+  - [Synopsis](#synopsis)
+  - [Versions](#versions)
+          - [Docker Version](#docker-version)
+          - [K3d / K3s Version](#k3d--k3s-version)
+          - [Helm Version](#helm-version)
+          - [Vault Version](#vault-version)
+  - [Vault Authentication](#vault-authentication)
+  - [Access External Vault](#access-external-vault)
+      - [Two Options:](#two-options)
+      - [Application Perspective](#application-perspective)
+  - [Install Agent Injector](#install-agent-injector)
+  - [Verify Agent Injector `serviceaccount` and `secret`](#verify-agent-injector-serviceaccount-and-secret)
+  - [Deploy and Annotate Application](#deploy-and-annotate-application)
+  - [Verify Secrets are Injected into `pods`](#verify-secrets-are-injected-into-pods)
+  - [References](#references)
 
 ## PREREQUISITES
 
@@ -42,20 +65,20 @@ alias:
 
 External Vault Service should exist ***a priori*** ( e.g. ***[HERE](https://github.com/F0otsh0T/hcp-vault-docker/tree/main/00-vault)*** )
 
-####This Repo builds on the following:
+#### This Repo builds on the following:
 
 1. https://github.com/F0otsh0T/hcp-vault-docker
 2. https://github.com/F0otsh0T/hcp-vault-patterns/tree/main/auth/kubernetes/kubernetes-client-jwt
-3. https://github.com/F0otsh0T/hcp-vault-patterns/tree/main/auth/approle#kv2-secrets-engine
- 
+3. https://github.com/F0otsh0T/hcp-vault-patterns/tree/development/secrets/kv
 
-## Synopsis:
+## Synopsis
 
-1. Decide on External **Vault** access options in [Access External Vault](#access-external-vault) section below ([LINK](#access-external-vault))
-2. Create **Vault** Sidecar Agent Injector **Helm** `install` based on decision above ([LINK](#install-agent-injector))
-3. Verify Agent Injector `serviceaccount` and `secret` ([LINK](#verify-agent-injector-serviceaccount-and-secret))
-4. Deploy and Annotate Application ([LINK](#deploy-and-annotate-application))
-5. Verify Secrets are Injected into `pods` ([LINK](#verify-secrets-are-injected-into-pods))
+1. Select **Vault** Authentication Method ([LINK](#vault-authentication))
+2. Decide on External **Vault** access options in [Access External Vault](#access-external-vault) section below ([LINK](#access-external-vault))
+3. Create **Vault** Sidecar Agent Injector **Helm** `install` based on decision above ([LINK](#install-agent-injector))
+4. Verify Agent Injector `serviceaccount` and `secret` ([LINK](#verify-agent-injector-serviceaccount-and-secret))
+5. Deploy and Annotate Application ([LINK](#deploy-and-annotate-application))
+6. Verify Secrets are Injected into `pods` ([LINK](#verify-secrets-are-injected-into-pods))
 
 ## Versions
 
@@ -90,11 +113,23 @@ version.BuildInfo{Version:"v3.9.0", GitCommit:"7ceeda6c585217a19a1131663d8cd1f7d
 Vault v1.11.0 ('ea296ccf58507b25051bc0597379c467046eb2f1+CHANGES'), built 2022-06-17T15:48:44Z
 ```
 
+## Vault Authentication
+
+There are a number of supported **Vault** [Auth Methods](https://www.vaultproject.io/docs/agent/autoauth/methods) and can be selected via the **Kubernetes** `resource` (`deployment`, `pod`, `statefulset`) spec and [annotations](https://www.vaultproject.io/docs/platform/k8s/injector/annotations#vault-hashicorp-com-auth-type):
+
+- [Kubernetes (default)](https://www.vaultproject.io/docs/platform/k8s/injector/examples#deployments-statefulsets-etc)
+- [AppRole](https://www.vaultproject.io/docs/platform/k8s/injector/examples#approle-authentication)
+- OIDC JWT Public Key (?? Needs to be validated)
+
+**Vault** Authentication Methods specified here @ https://www.vaultproject.io/docs/platform/k8s/injector/annotations#vault-hashicorp-com-auth-type
+
+
+
 ## Access External Vault
 
 #### Two Options:
 
-- Hard code External Vault IP into each Kubernetes application (Pods
+- Hard code External Vault IP into each of your Kubernetes applications.
 - Create Kubernetes **[Service](https://kubernetes.io/docs/concepts/services-networking/service/)** and **API [Endpoint](https://kubernetes.io/docs/concepts/services-networking/service/#services-without-selectors)** exposing External Vault API inside of Kubernetes so that Kubernetes applications (Pods) can interact with the external Vault via the internal `service` / `endpoint`
   - [Deploy service and endpoints to address an external Vault](https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault#deploy-service-and-endpoints-to-address-an-external-vault)
     ```shell
@@ -209,6 +244,8 @@ For applications in the **Kubernetes** cluster that wish to access the external 
 
 ## Verify Agent Injector `serviceaccount` and `secret`
 
+**Vault** Agent Injector Helm Chart creates a `serviceaccount` called `vault`.
+
 - Describe the **vault** `serviceaccount`.
   ```shell
   ❯ kubectl describe serviceaccount vault
@@ -225,9 +262,14 @@ For applications in the **Kubernetes** cluster that wish to access the external 
   Tokens:              vault-token-plc5q
   Events:              <none>
   ```
+- Get **Vault** Agent `serviceaccount` Token Name
+  ```shell
+  ❯ kubectl get sa vault -o jsonpath="{.secrets[*]['name']}"
+  vault-token-plc5q
+  ```
 - ***Kubernetes 1.24+ only***: The name of the mountable secret is displayed in Kubernetes 1.23. In Kubernetes 1.24+, the token is not created automatically, and you must create it explicitly.
   ```shell
-  ❯ cat > vault-secret.yaml <<EOF
+  ❯ cat > vault-sa-token-secret.yaml <<EOF
   apiVersion: v1
   kind: Secret
   metadata:
@@ -239,7 +281,7 @@ For applications in the **Kubernetes** cluster that wish to access the external 
   ```
   Create the `secret`
   ```shell
-  ❯ kubectl apply -f vault-secret.yaml
+  ❯ kubectl apply -f vault-sa-token-secret.yaml
   secret/vault-token-plc5q created
   ```
 - Create a variable named `VAULT_HELM_SECRET_NAME` that stores the secret name.
@@ -272,50 +314,52 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
 
 - Create new `deployment`
   ```shell
-  ❯ cat > k8stools-with-annotations-deployment.yaml <<EOF
+  ❯ cat > k8stools-deploy-auth-k8s.yaml <<EOF
   apiVersion: apps/v1
   kind: Deployment
   metadata:
-    name: k8stools-with-annotations
+    name: k8stools-auth-k8s
     labels:
-      app: k8stools-with-annotations
+      app: k8stools-auth-k8s
   spec:
     replicas: 1
     selector:
       matchLabels:
-        app: k8stools-with-annotations
+        app: k8stools-auth-k8s
     template:
       metadata:
         labels:
-          app: k8stools-with-annotations
+          app: k8stools-auth-k8s
       spec:
         containers:
-        - name: k8stools-with-annotations
+        - name: k8stools-auth-k8s
           image: wbitt/network-multitool:alpine-extra
           env:
-            - name: VAULT_ADDR
-              value: "http://192.168.65.2:8200"
-            - name: KUBE_TOKEN
-              value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          - name: VAULT_ADDR
+            value: "http://192.168.65.2:8200"
+          - name: JWT
+            value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          - name: KUBE_TOKEN
+            value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
           ports:
           - containerPort: 80
   EOF
   ```
   ```shell
-  ❯ kubectl create -f k8stools-with-annotations-deployment.yaml
-  deployment.apps/k8stools-with-annotations created
+  ❯ kubectl create -f k8stools-deploy-auth-k8s.yaml
+  deployment.apps/k8stools-auth-k8s created
   ❯ kubectl get deployments
   NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
   vault-agent-injector        1/1     1            1           9h
-  k8stools-with-annotations   1/1     1            1           7s
+  k8stools-auth-k8s   1/1     1            1           7s
   ❯ kubectl get pods
   NAME                                         READY   STATUS    RESTARTS      AGE
   vault-agent-injector-5b7d588456-g6sh8        1/1     Running   2 (91m ago)   9h
-  k8stools-with-annotations-7c7fb48cc9-jbq5z   1/1     Running   0             11s
+  k8stools-auth-k8s-7c7fb48cc9-jbq5z   1/1     Running   0             11s
   ```
 - Patch `deployment` with **Vault** Agent Injector `annotations`
   ```shell
-  ❯ cat > vault-secret.yaml <<EOF
+  ❯ cat > patch-auth-k8s.yaml <<EOF
   spec:
     template:
       spec:
@@ -334,29 +378,29 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
   ```
 
   ```shell
-  kubectl -n default patch deployment k8stools-with-annotations --patch "$(cat patch.yaml)"
-  deployment.apps/k8stools-with-annotations patched
+  kubectl -n default patch deployment k8stools-auth-k8s --patch "$(cat patch-auth-k8s.yaml)"
+  deployment.apps/k8stools-auth-k8s patched
   
   ❯ kubectl get pods
   NAME                                         READY   STATUS     RESTARTS      AGE
   vault-agent-injector-5b7d588456-g6sh8        1/1     Running    2 (95m ago)   9h
-  k8stools-with-annotations-7c7fb48cc9-jbq5z   1/1     Running    0             3m44s
-  k8stools-with-annotations-568949ddc9-qkcxw   0/2     Init:0/1   0             6s
+  k8stools-auth-k8s-7c7fb48cc9-jbq5z   1/1     Running    0             3m44s
+  k8stools-auth-k8s-568949ddc9-qkcxw   0/2     Init:0/1   0             6s
 
   ❯ kubectl get pods
   NAME                                         READY   STATUS    RESTARTS      AGE
   vault-agent-injector-5b7d588456-g6sh8        1/1     Running   2 (95m ago)   9h
-  k8stools-with-annotations-568949ddc9-qkcxw   2/2     Running   0             48s
+  k8stools-auth-k8s-568949ddc9-qkcxw   2/2     Running   0             48s
   ```
 
 ## Verify Secrets are Injected into `pods`
 
   ```shell
-  ❯ kubectl exec deployments/k8stools-with-annotations -c k8stools-with-annotations cat /vault/secrets/kv
+  ❯ kubectl exec deployments/k8stools-auth-k8s -c k8stools-auth-k8s cat /vault/secrets/kv
   data: map[foo:bar]
   metadata: map[created_time:2022-07-02T17:43:06.26018318Z custom_metadata:<nil> deletion_time: destroyed:false version:1]
 
-  ❯ kubectl exec deployments/k8stools-with-annotations -c k8stools-with-annotations cat /vault/secrets/kv.json
+  ❯ kubectl exec deployments/k8stools-auth-k8s -c k8stools-auth-k8s cat /vault/secrets/kv.json
   {
     "foo": "bar"
   }
@@ -366,6 +410,8 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
 
 - https://www.vaultproject.io/docs/platform/k8s/injector
 - https://www.vaultproject.io/docs/platform/k8s/injector/annotations
+- https://www.vaultproject.io/docs/platform/k8s/injector/examples
+- https://www.vaultproject.io/docs/agent/autoauth
 - https://learn.hashicorp.com/tutorials/vault/agent-kubernetes
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault

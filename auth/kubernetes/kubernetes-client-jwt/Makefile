@@ -39,7 +39,7 @@ clean: #target ## Housekeeping.
 # ALL
 ################################
 .PHONY: all
-all: kubernetes-sa-crb kubernetes-harvest vault-policy secrets-enable-kv2 auth-enable-kubernetes auth-kubernetes-config auth-kubernetes-role #target ## All Targets
+all: kubernetes-sa-crb kubernetes-harvest vault-policy secrets-enable-kv auth-enable-kubernetes auth-kubernetes-config auth-kubernetes-role #target ## All Targets
 
 
 ################################
@@ -83,8 +83,8 @@ vault-policy: #target ## Vault Policy
 # CREATE VAULT KV SECRETS
 # PERSONA: ADMIN
 ################################
-.PHONY: secrets-enable-kv2
-secrets-enable-kv2: #target ## Vault Secrets Enable KVv2
+.PHONY: secrets-enable-kv
+secrets-enable-kv: #target ## Vault Secrets Enable KVv2
 	@echo "***********************\n** ENABLE SECRET KV2 **\n***********************"
 	vault secrets enable -version=2 -path=nginx kv
 	vault kv put -format=json nginx/secret foo=bar | jq

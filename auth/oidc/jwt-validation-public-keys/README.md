@@ -235,18 +235,15 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
    verbose_oidc_logging       false
    ```
 7. Log in via **JWT** Auth Method Role to retrieve access **token**
-    - Create NGINX K8s ```deployment``` 
+    - Create ***test-oidc-jwt*** K8s ```deployment``` 
       ```shell
-      kubectl create deployment nginx --image=nginx
-      deployment.apps/nginx created
-      ```
-    - Create NGINX K8s ```service```
-      ```shell
-      kubectl create service nodeport nginx --tcp=80:80
-      service/nginx created
+      ❯ kubectl create -f deploiy.oidc-jwt.yaml
+      deployment.apps/test-oidc-jwt created
       ```
     - Exec into the Pod and attempt to Log into **Vault** via ```curl```
       ```shell
+      kubectl exec -it deployments/test-oidc-jwt -- bash
+
       export VAULT_ADDR=http://192.168.65.2:8200
 
       export JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
@@ -309,9 +306,25 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 
 ###### JWK Conversion
 
-- ~~https://www.npmjs.com/package/pem-jwk~~
-- ~~https://github.com/dannycoates/pem-jwk~~
+- https://www.npmjs.com/package/pem-jwk
+- https://github.com/dannycoates/pem-jwk
 - https://8gwifi.org/jwkconvertfunctions.jsp
+
+"`BEGIN RSA PUBLIC KEY`" is **PKCS#1**, which can only contain RSA keys.
+"`BEGIN PUBLIC KEY`" is **PKCS#8**, which can contain a variety of formats.
+
+To convert from **PKCS#8** to **PKCS#1:**
+
+```
+openssl rsa -pubin -in <filename> -RSAPublicKey_out
+```
+
+To convert from **PKCS#1** to **PKCS#8**:
+
+```
+openssl rsa -RSAPublicKey_in -in <filename> -pubout
+```
+
 
 ###### kubernetes-k3s-certs-keys
 

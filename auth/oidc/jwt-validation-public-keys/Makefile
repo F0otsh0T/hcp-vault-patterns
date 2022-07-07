@@ -38,8 +38,7 @@ clean: #target ## Housekeeping.
 # ALL
 ################################
 .PHONY: all
-all: k8s-sa-pubkey-jwk auth-enable-jwt auth-jwt-config auth-jwt-role #target ## All Targets
-#: kubernetes-sa-crb vault-policy secrets-enable-kv2 k8s-sa-pubkey-jwk auth-enable-jwt auth-jwt-config
+all: kubernetes-sa-crb vault-policy secrets-enable-kv k8s-sa-pubkey-jwk auth-enable-jwt auth-jwt-config auth-jwt-role deploy-app-auth-oidc-jwt #target ## All Targets
 
 ################################
 # K8S: CREATE SERVICEACCOUNT & CLUSTERROLEBINDING
@@ -49,16 +48,6 @@ kubernetes-sa-crb: #target ## Kubernetes Create ServiceAccount and ClusterRoleBi
 	@echo "************************************************\n** CREATE SERVICEACCOUNT & CLUSTERROLEBINDING **\n************************************************"
 	-kubectl create -f vault-auth-k8s-serviceaccount.yaml
 	-kubectl create -f vault-auth-k8s-clusterrolebinding.yaml
-
-################################
-# K8S: HARVEST DATA FOR VAULT INPUT
-################################
-.PHONY: kubernetes-harvest
-kubernetes-harvest: #target ## Kubernetes Harvest Data
-	@echo "**********************************\n** HARVEST DATA FOR VAULT INPUT **\n**********************************"
-	@sh kubernetes-harvest.sh && \
-		cat kubernetes-harvest.cert && \
-		cat kubernetes-harvest.json | jq
 
 ################################
 # CREATE VAULT POLICY TO APPLY TO ROLE
@@ -73,8 +62,8 @@ vault-policy: #target ## Vault Policy Write
 # CREATE VAULT KV SECRETS
 # PERSONA: ADMIN
 ################################
-.PHONY: secrets-enable-kv2
-secrets-enable-kv2: #target ## Vault Secrets Enable KVv2
+.PHONY: secrets-enable-kv
+secrets-enable-kv: #target ## Vault Secrets Enable KVv2
 	@echo "***********************\n** ENABLE SECRET KV2 **\n***********************"
 	-vault secrets enable -version=2 -path=nginx kv
 	-vault kv put -format=json nginx/secret foo=bar | jq
@@ -126,89 +115,15 @@ auth-jwt-role: #target ## Vault Auth JWT Role
 			ttl="1h"
 	vault read auth/jwt/role/my-role
 
-
-
 ################################
-# ENABLE: VAULT AUTH APPROLE - API
-# # PERSONA: ADMIN
+# K8S: DEPLOY TEST APPLICATION - AUTH OIDC JWT
 ################################
-.PHONY: auth-approle-enable-api
-auth-approle-enable-api: #target
-	echo "*************************\n** ENABLE AUTH APPROLE **\n*************************"
-	curl --header "X-Vault-Token: ${VAULT_TOKEN}" \
-		--request POST \
-		--data '{"type": "approle"}' \
-		${VAULT_ADDR}/v1/sys/auth/approle
-
-################################
-# CREATE APPROLE ROLE WITH POLICY
-# PERSONA: ADMIN
-################################
-.PHONY: auth-approle-write-role
-auth-approle-write-role: #target
-	echo "******************************\n** ENABLE AUTH APPROLE ROLE **\n******************************"
-	vault write auth/approle/role/nginx token_policies="nginx" \
-		token_ttl=1h \
-		token_max_ttl=4h
-
-################################
-# GET ROLEID & SECRETID
-# PERSONA: TRUSTED ENTITY OR ADMIN
-################################
-.PHONY: auth-approle-get-roleid
-auth-approle-get-roleid: #target
-	echo "****************\n** GET ROLEID **\n****************"
-	vault read -format=json auth/approle/role/nginx/role-id | jq > role-id.json
-	export roleid=$(shell cat role-id.json | jq -r .data.role_id)
-	echo ${roleid}
-
-.PHONY: auth-approle-get-secretid
-auth-approle-get-secretid: #target
-	echo "******************\n** GET SECRETID **\n******************"
-	vault write -format=json -force auth/approle/role/nginx/secret-id | jq > secret-id.json
-	export secretid=$(shell cat secret-id.json | jq -r .data.secret_id)
-	echo ${secretid}
-
-################################
-# GET CLIENT TOKEN
-# PERSONA: APP
-################################
-.PHONY: auth-approle-get-token
-auth-approle-get-token: #target
-	echo "**********************\n** GET CLIENT TOKEN **\n**********************"
-	vault write -format=json auth/approle/login role_id="$(shell cat role-id.json | jq -r .data.role_id)" \
-		secret_id="$(shell cat secret-id.json | jq -r .data.secret_id)" \
-		| jq -r ".auth" > client_token.json
-	cat client_token.json
-	echo "AppRole Retrieved Client Token is $(shell jq -r .client_token < client_token.json)"
-
-################################
-# READ SECRET WITH CLIENT TOKEN
-# PERONA: APP
-################################
-.PHONY: auth-approle-read-secret
-auth-approle-read-secret: #target
-	echo "*****************\n** READ SECRET **\n*****************"
-	VAULT_TOKEN=$(shell jq -r .client_token < client_token.json) vault kv get nginx/secret
-#	VAULT_TOKEN=$(shell jq -r .client_token < client_token.json) vault kv get -format=json nginx/secret
-
-################################
-# 
-################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.PHONY: deploy-app-auth-oidc-jwt
+deploy-app-auth-oidc-jwt:  #target ## Deploy Application Auth OIDC JWT
+	@echo "************************\n** DEPLOY APPLICATION **\n************************"
+	kubectl apply -f deploiy.oidc-jwt.yaml
+	sleep 5
+	kubectl get pods --selector=app=test-oidc-jwt
 
 ################################
 # HELP

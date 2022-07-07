@@ -75,7 +75,7 @@ all-auth-oidc-jwt: external-vault helm-vault-agent-install vault-sa-token deploy
 .PHONY: external-vault
 external-vault: #target ## Kubernetes Create ServiceAccount and ClusterRoleBinding.
 	@echo "***********************************\n** CREATE EXTERNAL VAULT SERVICE **\n***********************************"
-	kubectl create -f external-vault.yaml
+	-kubectl create -f external-vault.yaml
 
 ################################
 # K8S/VAULT: HELM INSTALL VAULT AGENT INJECTOR
@@ -85,7 +85,7 @@ helm-vault-agent-install: #target ## Kubernetes Harvest Data
 	@echo "**********************************\n** HARVEST DATA FOR VAULT INPUT **\n**********************************"
 	helm repo add hashicorp https://helm.releases.hashicorp.com
 	helm repo update
-	helm install vault hashicorp/vault \
+	-helm install vault hashicorp/vault \
 		--set "injector.externalVaultAddr=http://external-vault:8200"
 	kubectl -n default get pods
 	sleep 15

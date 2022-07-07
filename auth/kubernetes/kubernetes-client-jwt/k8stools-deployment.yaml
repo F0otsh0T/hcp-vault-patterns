@@ -15,6 +15,7 @@ spec:
       labels:
         app: k8stools
     spec:
+      serviceAccountName: vault-auth
       containers:
       - name: k8stools
         image: wbitt/network-multitool:alpine-extra

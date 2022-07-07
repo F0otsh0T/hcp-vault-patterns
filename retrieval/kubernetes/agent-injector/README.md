@@ -244,6 +244,8 @@ For applications in the **Kubernetes** cluster that wish to access the external 
 
 ## Verify Agent Injector `serviceaccount` and `secret`
 
+**Vault** Agent Injector Helm Chart creates a `serviceaccount` called `vault`.
+
 - Describe the **vault** `serviceaccount`.
   ```shell
   ❯ kubectl describe serviceaccount vault
@@ -260,9 +262,14 @@ For applications in the **Kubernetes** cluster that wish to access the external 
   Tokens:              vault-token-plc5q
   Events:              <none>
   ```
+- Get **Vault** Agent `serviceaccount` Token Name
+  ```shell
+  ❯ kubectl get sa vault -o jsonpath="{.secrets[*]['name']}"
+  vault-token-plc5q
+  ```
 - ***Kubernetes 1.24+ only***: The name of the mountable secret is displayed in Kubernetes 1.23. In Kubernetes 1.24+, the token is not created automatically, and you must create it explicitly.
   ```shell
-  ❯ cat > vault-secret.yaml <<EOF
+  ❯ cat > vault-sa-token-secret.yaml <<EOF
   apiVersion: v1
   kind: Secret
   metadata:
@@ -274,7 +281,7 @@ For applications in the **Kubernetes** cluster that wish to access the external 
   ```
   Create the `secret`
   ```shell
-  ❯ kubectl apply -f vault-secret.yaml
+  ❯ kubectl apply -f vault-sa-token-secret.yaml
   secret/vault-token-plc5q created
   ```
 - Create a variable named `VAULT_HELM_SECRET_NAME` that stores the secret name.
@@ -328,10 +335,12 @@ Create your application and `patch` it with **Vault** Sidecar Agent Injector `an
         - name: k8stools-auth-k8s
           image: wbitt/network-multitool:alpine-extra
           env:
-            - name: VAULT_ADDR
-              value: "http://192.168.65.2:8200"
-            - name: KUBE_TOKEN
-              value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          - name: VAULT_ADDR
+            value: "http://192.168.65.2:8200"
+          - name: JWT
+            value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          - name: KUBE_TOKEN
+            value: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
           ports:
           - containerPort: 80
   EOF

@@ -1,3 +1,4 @@
+---
 # pod patch vault annotations yaml
 spec:
   template:
@@ -6,7 +7,7 @@ spec:
     metadata:
       annotations:
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-init-first: "true"
+#        vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/role: "example"
         vault.hashicorp.com/namespace: "default"
         vault.hashicorp.com/agent-inject-secret-kv: "nginx/secret"

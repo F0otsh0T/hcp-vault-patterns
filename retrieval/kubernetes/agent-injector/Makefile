@@ -141,7 +141,7 @@ patch-app-auth-oidc-jwt:  #target ## Patch and Annotate Application Auth OIDC JW
 	sleep 5
 	kubectl get pods --selector=app=k8stools-auth-oidc-jwt
 	@echo "**************************\n** GET INJECTED SECRETS **\n**************************"
-	kubectl exec deployments/k8stools-auth-oide-jwt -c k8stools-auth-oidc-jwt -- cat /vault/secrets/kv /vault/secrets/kv.json
+	kubectl exec deployments/k8stools-auth-oidc-jwt -c k8stools-auth-oidc-jwt -- cat /vault/secrets/kv /vault/secrets/kv.json
 
 ################################
 # HELP

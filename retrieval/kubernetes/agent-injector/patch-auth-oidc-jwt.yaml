@@ -6,8 +6,11 @@ spec:
       serviceAccountName: vault-auth
     metadata:
       annotations:
+        vault.hashicorp.com/log-level: "TRACE"
         vault.hashicorp.com/agent-inject: "true"
 #        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/auth-config-path: "var/run/secrets/kubernetes.io/serviceaccount/token"
+        vault.hashicorp.com/auth-config-remove-jwt-after-reading: "false"
         vault.hashicorp.com/auth-type: "jwt"
         vault.hashicorp.com/auth-path: "auth/jwt"
         vault.hashicorp.com/role: "my-role"

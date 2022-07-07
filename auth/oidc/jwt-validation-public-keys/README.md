@@ -306,9 +306,25 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
 
 ###### JWK Conversion
 
-- ~~https://www.npmjs.com/package/pem-jwk~~
-- ~~https://github.com/dannycoates/pem-jwk~~
+- https://www.npmjs.com/package/pem-jwk
+- https://github.com/dannycoates/pem-jwk
 - https://8gwifi.org/jwkconvertfunctions.jsp
+
+"`BEGIN RSA PUBLIC KEY`" is **PKCS#1**, which can only contain RSA keys.
+"`BEGIN PUBLIC KEY`" is **PKCS#8**, which can contain a variety of formats.
+
+To convert from **PKCS#8** to **PKCS#1:**
+
+```
+openssl rsa -pubin -in <filename> -RSAPublicKey_out
+```
+
+To convert from **PKCS#1** to **PKCS#8**:
+
+```
+openssl rsa -RSAPublicKey_in -in <filename> -pubout
+```
+
 
 ###### kubernetes-k3s-certs-keys
 

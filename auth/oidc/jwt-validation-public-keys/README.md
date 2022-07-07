@@ -235,18 +235,15 @@ k3d cluster create --agents 2 --k3s-arg "--tls-san=192.168.65.2"@server:* auth-j
    verbose_oidc_logging       false
    ```
 7. Log in via **JWT** Auth Method Role to retrieve access **token**
-    - Create NGINX K8s ```deployment``` 
+    - Create ***test-oidc-jwt*** K8s ```deployment``` 
       ```shell
-      kubectl create deployment nginx --image=nginx
-      deployment.apps/nginx created
-      ```
-    - Create NGINX K8s ```service```
-      ```shell
-      kubectl create service nodeport nginx --tcp=80:80
-      service/nginx created
+      ❯ kubectl create -f deploiy.oidc-jwt.yaml
+      deployment.apps/test-oidc-jwt created
       ```
     - Exec into the Pod and attempt to Log into **Vault** via ```curl```
       ```shell
+      kubectl exec -it deployments/test-oidc-jwt -- bash
+
       export VAULT_ADDR=http://192.168.65.2:8200
 
       export JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)

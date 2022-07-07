@@ -38,8 +38,7 @@ clean: #target ## Housekeeping.
 # ALL
 ################################
 .PHONY: all
-all: k8s-sa-pubkey-jwk auth-enable-jwt auth-jwt-config auth-jwt-role #target ## All Targets
-#: kubernetes-sa-crb vault-policy secrets-enable-kv2 k8s-sa-pubkey-jwk auth-enable-jwt auth-jwt-config
+all: kubernetes-sa-crb vault-policy secrets-enable-kv k8s-sa-pubkey-jwk auth-enable-jwt auth-jwt-config auth-jwt-role #target ## All Targets
 
 ################################
 # K8S: CREATE SERVICEACCOUNT & CLUSTERROLEBINDING
@@ -49,16 +48,6 @@ kubernetes-sa-crb: #target ## Kubernetes Create ServiceAccount and ClusterRoleBi
 	@echo "************************************************\n** CREATE SERVICEACCOUNT & CLUSTERROLEBINDING **\n************************************************"
 	-kubectl create -f vault-auth-k8s-serviceaccount.yaml
 	-kubectl create -f vault-auth-k8s-clusterrolebinding.yaml
-
-################################
-# K8S: HARVEST DATA FOR VAULT INPUT
-################################
-.PHONY: kubernetes-harvest
-kubernetes-harvest: #target ## Kubernetes Harvest Data
-	@echo "**********************************\n** HARVEST DATA FOR VAULT INPUT **\n**********************************"
-	@sh kubernetes-harvest.sh && \
-		cat kubernetes-harvest.cert && \
-		cat kubernetes-harvest.json | jq
 
 ################################
 # CREATE VAULT POLICY TO APPLY TO ROLE
@@ -73,8 +62,8 @@ vault-policy: #target ## Vault Policy Write
 # CREATE VAULT KV SECRETS
 # PERSONA: ADMIN
 ################################
-.PHONY: secrets-enable-kv2
-secrets-enable-kv2: #target ## Vault Secrets Enable KVv2
+.PHONY: secrets-enable-kv
+secrets-enable-kv: #target ## Vault Secrets Enable KVv2
 	@echo "***********************\n** ENABLE SECRET KV2 **\n***********************"
 	-vault secrets enable -version=2 -path=nginx kv
 	-vault kv put -format=json nginx/secret foo=bar | jq

@@ -35,7 +35,7 @@ clean: #target
 # ALL
 ##########
 .PHONY: all
-all: vault-policy vault-secrets-enable-kv2 auth-approle-enable auth-approle-write-role auth-approle-get-roleid auth-approle-get-secretid auth-approle-get-token #target
+all: vault-policy vault-secrets-enable-kv auth-approle-enable auth-approle-write-role auth-approle-get-roleid auth-approle-get-secretid auth-approle-get-token #target
 
 ##########
 # CREATE VAULT POLICY TO APPLY TO ROLE
@@ -50,8 +50,8 @@ vault-policy: #target
 # CREATE VAULT POLICY TO APPLY TO ROLE
 # PERSONA: ADMIN
 ##########
-.PHONY: vault-secrets-enable-kv2
-vault-secrets-enable-kv2: #target
+.PHONY: vault-secrets-enable-kv
+vault-secrets-enable-kv: #target
 	echo "***********************\n** ENABLE SECRET KV2 **\n***********************"
 	vault secrets enable -version=2 -path=nginx kv
 	vault kv put -format=json nginx/secret foo=bar | jq

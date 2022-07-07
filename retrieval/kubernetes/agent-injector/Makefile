@@ -29,11 +29,27 @@ default: help
 .PHONY: clean
 clean: #target ## Housekeeping.
 	@echo "**************\n** CLEAN UP **\n**************"
-	-kubectl delete -f k8stools-decode-auth-oidc-jwt.yaml
+	-kubectl delete -f k8stools-deploy-auth-oidc-jwt.yaml
 	-kubectl delete -f k8stools-deploy-auth-k8s.yaml
 	-kubectl delete -f vault-sa-token-secret.yaml
 	-helm uninstall vault
 	-kubectl delete -f external-vault.yaml
+
+################################
+# CLEAN K8STOOLS-AUTH-K8S DEPLOYMENT
+################################
+.PHONY: clean-deploy-auth-k8s
+clean-deploy-auth-k8s: #target ## Housekeeping.
+	@echo "**************\n** CLEAN UP **\n**************"
+	-kubectl delete -f k8stools-deploy-auth-k8s.yaml
+
+################################
+# CLEAN K8STOOLS-AUTH-OIDC-JWT DEPLOYMENT
+################################
+.PHONY: clean-deploy-auth-oidc-jwt
+clean-deploy-auth-oidc-jwt: #target ## Housekeeping.
+	@echo "**************\n** CLEAN UP **\n**************"
+	-kubectl delete -f k8stools-deploy-auth-oidc-jwt.yaml
 
 ################################
 # ALL 
@@ -59,7 +75,7 @@ all-auth-oidc-jwt: external-vault helm-vault-agent-install vault-sa-token deploy
 .PHONY: external-vault
 external-vault: #target ## Kubernetes Create ServiceAccount and ClusterRoleBinding.
 	@echo "***********************************\n** CREATE EXTERNAL VAULT SERVICE **\n***********************************"
-	kubectl create -f external-vault.yaml
+	-kubectl create -f external-vault.yaml
 
 ################################
 # K8S/VAULT: HELM INSTALL VAULT AGENT INJECTOR
@@ -69,10 +85,10 @@ helm-vault-agent-install: #target ## Kubernetes Harvest Data
 	@echo "**********************************\n** HARVEST DATA FOR VAULT INPUT **\n**********************************"
 	helm repo add hashicorp https://helm.releases.hashicorp.com
 	helm repo update
-	helm install vault hashicorp/vault \
+	-helm install vault hashicorp/vault \
 		--set "injector.externalVaultAddr=http://external-vault:8200"
 	kubectl -n default get pods
-	sleep 5
+	sleep 15
 
 ################################
 # VAULT SERVICEACCOUNT TOKEN SECRET
@@ -90,6 +106,7 @@ vault-sa-token: #target ## Vault Agent Service Account Token Secret
 deploy-app-auth-kubernetes:  #target ## Deploy Application Auth Kubernetes
 	@echo "************************\n** DEPLOY APPLICATION **\n************************"
 	kubectl apply -f k8stools-deploy-auth-k8s.yaml
+	sleep 5
 
 ################################
 # K8S: PATCH / ANNOTATE DEPLOYMENT - AUTH K8S
@@ -100,7 +117,7 @@ patch-app-auth-kubernetes:  #target ## Patch and Annotate Application Auth Kuber
 	sh patch-auth-k8s.sh
 #	kubectl -n default patch deployments k8stools-auth-k8s --patch "$(shell cat patch-auth-k8s.yaml)"
 	sleep 5
-	kubectl get pods
+	kubectl get pods --selector=app=k8stools-auth-k8s
 	@echo "**************************\n** GET INJECTED SECRETS **\n**************************"
 	kubectl exec deployments/k8stools-auth-k8s -c k8stools-auth-k8s -- cat /vault/secrets/kv /vault/secrets/kv.json
 
@@ -111,6 +128,7 @@ patch-app-auth-kubernetes:  #target ## Patch and Annotate Application Auth Kuber
 deploy-app-auth-oidc-jwt:  #target ## Deploy Application Auth OIDC JWT Public Key
 	@echo "************************\n** DEPLOY APPLICATION **\n************************"
 	kubectl apply -f k8stools-deploy-auth-oidc-jwt.yaml
+	sleep 5
 
 ################################
 # K8S: PATCH / ANNOTATE DEPLOYMENT - AUTH OIDC JWT PUBLIC KEY
@@ -120,6 +138,10 @@ patch-app-auth-oidc-jwt:  #target ## Patch and Annotate Application Auth OIDC JW
 	@echo "***********************\n** PATCH APPLICATION **\n***********************"
 	@sh patch-auth-oidc-jwt.sh
 #	kubectl -n default patch deployments k8stools-auth-oidc-jwt --patch "$(shell cat patch-auth-oidc-jwt.yaml)"
+	sleep 5
+	kubectl get pods --selector=app=k8stools-auth-oidc-jwt
+	@echo "**************************\n** GET INJECTED SECRETS **\n**************************"
+	kubectl exec deployments/k8stools-auth-oide-jwt -c k8stools-auth-oidc-jwt -- cat /vault/secrets/kv /vault/secrets/kv.json
 
 ################################
 # HELP

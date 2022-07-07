@@ -183,9 +183,15 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     ```shell
     $ export SA_CA_CRT=$(kubectl config view --raw --minify --flatten --output 'jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 --decode)
     $ echo $SA_CA_CRT
-    -----BEGIN CERTIFICATE-----
-    BLAHBLAHBLAHCERTIFICATE
-    -----END CERTIFICATE-----
+    -----BEGIN PUBLIC KEY-----
+    LoremipsumdolorsitametconsecteturadipiscingelitExpectoquequidadid
+    quodquaerebamrespondeasProfectusinexiliumTubulusstatimnecresponde
+    reaususDuoRegesconstructiointerreteHicnihilfuitquodquaereremusSed
+    illeutdixivitioseNonautemhocigiturneilludquidemAgeinquiesistaparv
+    asuntQuemTiberinadescensiofestoillodietantogaudioaffecitquantoLSe
+    mperenimitaadsumitaliquiduteaquaeprimadederitnondeseratQuarumamba
+    rumrerum
+    -----END PUBLIC KEY-----
     ```
 - ```K8S_HOST```
     Set environment variable ```K8S_HOST``` for the **Kubernetes API** ```URL``` so that **Vault** can know how to reach the **K8s** Cluster.

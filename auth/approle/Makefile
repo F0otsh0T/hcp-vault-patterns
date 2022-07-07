@@ -44,7 +44,7 @@ all: vault-policy vault-secrets-enable-kv auth-approle-enable auth-approle-write
 .PHONY: vault-policy
 vault-policy: #target
 	echo "*******************\n** CREATE POLICY **\n*******************"
-	vault policy write nginx policy-approle.hcl
+	-vault policy write nginx policy-approle.hcl
 
 ##########
 # CREATE VAULT POLICY TO APPLY TO ROLE
@@ -53,8 +53,8 @@ vault-policy: #target
 .PHONY: vault-secrets-enable-kv
 vault-secrets-enable-kv: #target
 	echo "***********************\n** ENABLE SECRET KV2 **\n***********************"
-	vault secrets enable -version=2 -path=nginx kv
-	vault kv put -format=json nginx/secret foo=bar | jq
+	-vault secrets enable -version=2 -path=nginx kv
+	-vault kv put -format=json nginx/secret foo=bar | jq
 
 ##########
 # ENABLE: VAULT AUTH APPROLE - CLI
@@ -63,7 +63,7 @@ vault-secrets-enable-kv: #target
 .PHONY: auth-approle-enable
 auth-approle-enable: #target
 	echo "*************************\n** ENABLE AUTH APPROLE **\n*************************"
-	vault auth enable approle
+	-vault auth enable approle
 
 ##########
 # ENABLE: VAULT AUTH APPROLE - API
@@ -84,7 +84,7 @@ auth-approle-enable-api: #target
 .PHONY: auth-approle-write-role
 auth-approle-write-role: #target
 	echo "******************************\n** ENABLE AUTH APPROLE ROLE **\n******************************"
-	vault write auth/approle/role/nginx token_policies="nginx" \
+	-vault write auth/approle/role/nginx token_policies="nginx" \
 		token_ttl=1h \
 		token_max_ttl=4h
 

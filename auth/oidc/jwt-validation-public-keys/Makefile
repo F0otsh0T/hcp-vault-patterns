@@ -1,5 +1,5 @@
 ################################################################################
-# VAULT AUTH - APPROLE
+# VAULT AUTH - OIDC JWT Public Key
 #
 # @file
 # @version 0.1

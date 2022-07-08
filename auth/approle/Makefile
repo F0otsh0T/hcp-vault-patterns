@@ -18,6 +18,10 @@
 #   - Vault PKI Engines, Auth, Policies, Certs, Roles, etc.,
 ################################################################################
 
+################################
+# DEFAULTS
+################################
+default: help
 ACTION ?= plan
 
 ##########
@@ -35,7 +39,7 @@ clean: #target
 # ALL
 ##########
 .PHONY: all
-all: vault-policy vault-secrets-enable-kv auth-approle-enable auth-approle-write-role auth-approle-get-roleid auth-approle-get-secretid auth-approle-get-token #target
+all: vault-policy vault-secrets-enable-kv auth-approle-enable auth-approle-write-role auth-approle-get-roleid auth-approle-get-secretid auth-approle-get-token auth-approle-read-secret #target
 
 ##########
 # CREATE VAULT POLICY TO APPLY TO ROLE
@@ -134,7 +138,21 @@ auth-approle-read-secret: #target
 ##########
 
 
+################################
+# HELP
+# REF GH @ jen20/hashidays-nyc/blob/master/terraform/GNUmakefile
+################################
+.PHONY: help
+help: #target ## [DEFAULT] Display help for this Makefile.
+	@echo "Valid make targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
+check_defined = \
+		$(strip $(foreach 1,$1, \
+		$(call __check_defined,$1,$(strip $(value 2)))))
+__check_defined = \
+		$(if $(value $1),, \
+		$(error Undefined $1$(if $2, ($2))))
 
 
 

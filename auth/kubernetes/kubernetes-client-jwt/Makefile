@@ -48,8 +48,8 @@ all: kubernetes-sa-crb kubernetes-harvest vault-policy secrets-enable-kv auth-en
 .PHONY: kubernetes-sa-crb
 kubernetes-sa-crb: #target ## Kubernetes Create ServiceAccount and ClusterRoleBinding.
 	@echo "************************************************\n** CREATE SERVICEACCOUNT & CLUSTERROLEBINDING **\n************************************************"
-	kubectl create -f vault-auth-k8s-serviceaccount.yaml
-	kubectl create -f vault-auth-k8s-clusterrolebinding.yaml
+	-kubectl create -f vault-auth-k8s-serviceaccount.yaml
+	-kubectl create -f vault-auth-k8s-clusterrolebinding.yaml
 
 ################################
 # K8S: HARVEST DATA FOR VAULT INPUT
@@ -77,7 +77,7 @@ export K8S_HOST="$(shell jq -r '.K8S_HOST' < kubernetes-harvest.json)"
 .PHONY: 
 vault-policy: #target ## Vault Policy
 	@echo "*******************\n** CREATE POLICY **\n*******************"
-	vault policy write global.crudl p.global.crudl.hcl
+	-vault policy write global.crudl p.global.crudl.hcl
 
 ################################
 # CREATE VAULT KV SECRETS
@@ -86,8 +86,8 @@ vault-policy: #target ## Vault Policy
 .PHONY: secrets-enable-kv
 secrets-enable-kv: #target ## Vault Secrets Enable KVv2
 	@echo "***********************\n** ENABLE SECRET KV2 **\n***********************"
-	vault secrets enable -version=2 -path=nginx kv
-	vault kv put -format=json nginx/secret foo=bar | jq
+	-vault secrets enable -version=2 -path=nginx kv
+	-vault kv put -format=json nginx/secret foo=bar | jq
 
 ################################
 # ENABLE: VAULT AUTH APPROLE - CLI

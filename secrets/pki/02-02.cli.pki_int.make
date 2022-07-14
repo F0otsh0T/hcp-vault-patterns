@@ -41,7 +41,7 @@ pki_int-enable: #target ## Secrets Enable PKI INT
 # GENERATE INTERMEDIATE CSR FROM PKI_INT ENGINE
 #
 .PHONY: pki_int-csr:
-pki_int-csr: #target ## Generate Intermediat CSR
+pki_int-csr: #target ## Generate Intermediate CSR
 	vault write -format=json pki_int/intermediate/generate/internal common_name="y0y0dyn3.com Intermediate Authority" | jq > workspace/tmp/pki_int.json
 	cat workspace/tmp/pki_int.json | jq -r '.data.csr' > workspace/tmp/pki_int.csr
 	cat workspace/tmp/pki_int.csr
@@ -58,7 +58,7 @@ pki_int-csr_sign: #target ## Sign Intermediate CSR
 # IMPORT & PUBLISH CA ROOT SIGNED INTERMEDIATE CERTIFICATE BACK INTO PKI_INT ENGINE
 #
 .PHONY: pki_int-cert_import
-pki_int-cert_import: #target ## Import and Publisch Signed CSR
+pki_int-cert_import: #target ## Import and Publish Signed CSR
 	vault write pki_int/intermediate/set-signed certificate=@workspace/tmp/pki_int.cert.pem
 
 ##########

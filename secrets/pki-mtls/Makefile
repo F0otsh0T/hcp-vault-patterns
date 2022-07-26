@@ -34,6 +34,7 @@ all: #target ## All Targets
 	make -f 02-02.cli.pki_int.make all
 	sleep 3
 	make -f 03-01.cli.intermediate_create.make all
+	cd workspace && make -f Makefile all
 
 ################################################################################
 # CLEAN
@@ -42,6 +43,7 @@ clean: #target ## Clean
 	make -f 02-02.cli.pki_int.make pki_int-disable
 	sleep 5
 	make -f 02-01.cli.pki.make pki-disable
+	cd workspace && make -f Makefile clean
 
 ################################
 # HELP

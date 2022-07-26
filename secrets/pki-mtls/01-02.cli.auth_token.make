@@ -1,5 +1,5 @@
 ################################################################################
-# VAULT PKI CLI - PKI_INT CREATE & PROCESS INTERMEDIATE CERTIFICATE
+# VAULT PKI CLI - AUTH METHOD
 #
 # @file
 # @version 0.1
@@ -22,26 +22,39 @@
 # DEFAULTS
 ################################
 default: help
-.PHONY: all clean
 
 ################################################################################
 # ALL
 ################################################################################
-all: #target ## All Targets
-	make -f 02-01.cli.pki.make all
-	make -f 02-01.cli.pki.make cert-read
-	sleep 10
-	make -f 02-02.cli.pki_int.make all
-	sleep 10
-	make -f 03-01.cli.intermediate_create.make all
+.PHONY: all
+all: auth-token vault-login #target ## All Targets
+
+##########
+# CREATE AUTH TOKEN BASED ON SELECTED POLICY (ASSUMING POLICY CREATED IN PREVIOUS STEPS)
+#
+.PHONY: 
+auth-token: #target ## Generate Client Token
+	vault token create -policy=pki_test -display-name=token-pki_test -format=json | jq > workspace/tmp/auth-token.json
+#	cat workspace/tmp/auth-token.json | jq -r '.auth.client_token' > workspace/tmp/auth-token
+	cat workspace/tmp/auth-token.json | jq -r '.auth.client_token' | pass insert -e vault/pki_test
+
+##########
+# LOGIN TO VAULT WITH NEWLY CREATED AUTH TOKEN
+#
+.PHONY: 
+vault-login: #target ## Vault Login
+	vault login $(shell pass vault/pki_test)
 
 ################################################################################
-# CLEAN
-################################################################################
-clean: #target ## Clean
-	make -f 02-02.cli.pki_int.make pki_int-disable
-	sleep 5
-	make -f 02-01.cli.pki.make pki-disable
+
+##########
+# REVOKE AUTH TOKEN
+#
+.PHONY: 
+auth-token-revoke: #target ## Revoke Client Token
+#	vault token revoke $(shell pass vault/pki_test)
+	vault token revoke $(shell cat workspace/tmp/auth-token.json | jq -r '.auth.client_token')
+
 
 ################################
 # HELP
@@ -58,3 +71,9 @@ check_defined = \
 __check_defined = \
 		$(if $(value $1),, \
 		$(error Undefined $1$(if $2, ($2))))
+
+
+
+
+
+

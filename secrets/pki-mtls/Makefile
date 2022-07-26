@@ -30,9 +30,9 @@ default: help
 all: #target ## All Targets
 	make -f 02-01.cli.pki.make all
 	make -f 02-01.cli.pki.make cert-read
-	sleep 10
+	sleep 3
 	make -f 02-02.cli.pki_int.make all
-	sleep 10
+	sleep 3
 	make -f 03-01.cli.intermediate_create.make all
 
 ################################################################################

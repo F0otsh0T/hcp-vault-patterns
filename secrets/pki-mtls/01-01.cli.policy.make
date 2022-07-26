@@ -1,5 +1,5 @@
 ################################################################################
-# VAULT PKI CLI - PKI_INT CREATE & PROCESS INTERMEDIATE CERTIFICATE
+# VAULT PKI CLI - PKI ENGINE & ROOT CA
 #
 # @file
 # @version 0.1
@@ -22,26 +22,35 @@
 # DEFAULTS
 ################################
 default: help
-.PHONY: all clean
 
 ################################################################################
 # ALL
 ################################################################################
-all: #target ## All Targets
-	make -f 02-01.cli.pki.make all
-	make -f 02-01.cli.pki.make cert-read
-	sleep 10
-	make -f 02-02.cli.pki_int.make all
-	sleep 10
-	make -f 03-01.cli.intermediate_create.make all
+.PHONY: all
+all: create-policy #target ## All Targets
+
+##########
+# CREATE VAULT POLICY FOR PKI_TEST
+#
+.PHONY: create-policy
+create-policy: #target ## Create Policy
+	vault policy list
+	vault policy write pki_test policy/pki_test.hcl
+	vault policy list -format=json | jq
+
+##########
+#
+#
+
 
 ################################################################################
-# CLEAN
-################################################################################
-clean: #target ## Clean
-	make -f 02-02.cli.pki_int.make pki_int-disable
-	sleep 5
-	make -f 02-01.cli.pki.make pki-disable
+
+##########
+# DELETE VAULT POLICY
+#
+.PHONY: delete-policy
+delete-policy: #target ## Delete Policy
+	vault policy delete pki_test
 
 ################################
 # HELP

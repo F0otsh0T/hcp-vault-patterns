@@ -61,7 +61,7 @@ cert-format: #target ## Format Cert
 	cat workspace/tmp/bob/intermediate-server.json | jq -r '.data.private_key' > workspace/tmp/bob/server.private_key
 	cat workspace/tmp/bob/intermediate-server.json | jq -r '.data.issuing_ca' > workspace/tmp/bob/server.issuing_ca
 	cat workspace/tmp/bob/intermediate-server.json | jq -r '.data.serial_number' > workspace/tmp/bob/server.serial_number
-	cp workspace/tmp/bob/server.bundle workspace/tmp/bob/server.bundle.$(shell date +"%Y%m%d-%H%M%S").bak
+	cp workspace/tmp/bob/server.bundle workspace/tmp/bob/_archive/server.bundle.$(shell date +"%Y%m%d-%H%M%S").bak
 #	cat workspace/tmp/bob/server.certificate workspace/tmp/bob/server.private_key workspace/tmp/bob/server.issuing_ca > workspace/tmp/bob/server.bundle
 #	cat workspace/tmp/bob/server.certificate workspace/tmp/bob/server.issuing_ca > workspace/tmp/bob/server.bundle
 	cat workspace/tmp/bob/server.certificate workspace/tmp/bob/server.issuing_ca workspace/tmp/bob/ca_root.issuing_ca > workspace/tmp/bob/server.bundle
@@ -71,7 +71,7 @@ cert-format: #target ## Format Cert
 	cat workspace/tmp/bob/intermediate-client.json | jq -r '.data.private_key' > workspace/tmp/bob/client.private_key
 	cat workspace/tmp/bob/intermediate-client.json | jq -r '.data.issuing_ca' > workspace/tmp/bob/client.issuing_ca
 	cat workspace/tmp/bob/intermediate-client.json | jq -r '.data.serial_number' > workspace/tmp/bob/client.serial_number
-	cp workspace/tmp/bob/client.bundle workspace/tmp/bob/client.bundle.$(shell date +"%Y%m%d-%H%M%S").bak
+	cp workspace/tmp/bob/client.bundle workspace/tmp/bob/_archive/client.bundle.$(shell date +"%Y%m%d-%H%M%S").bak
 	cat workspace/tmp/bob/client.certificate workspace/tmp/bob/client.issuing_ca workspace/tmp/bob/ca_root.issuing_ca > workspace/tmp/bob/client.bundle
 
 ##########

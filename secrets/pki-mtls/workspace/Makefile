@@ -38,20 +38,6 @@ clean: #target ## Clean Up
 	terraform destroy -auto-approve
 
 ##########
-# CERT - BUNDLE
-#
-.PHONY: cert-bundle
-cert-bundle: #target ## Bundle Certs
-	cat tmp/bob/intermediate.json | jq -r '.data.certificate' > tmp/bob/server.certificate
-	cat tmp/bob/intermediate.json | jq -r '.data.private_key' > tmp/bob/server.private_key
-	cat tmp/bob/intermediate.json | jq -r '.data.issuing_ca' > tmp/bob/server.issuing_ca
-	cat tmp/bob/intermediate.json | jq -r '.data.serial_number' > tmp/bob/server.serial_number
-	cp tmp/bob/server.bundle tmp/bob/server.bundle.$(shell date +"%Y%m%d-%H%M%S").bak
-#	cat tmp/bob/server.certificate tmp/bob/server.private_key tmp/bob/server.issuing_ca > tmp/bob/server.bundle
-#	cat tmp/bob/server.certificate tmp/bob/server.issuing_ca > tmp/bob/server.bundle
-	cat tmp/bob/server.certificate tmp/bob/server.issuing_ca tmp/bob/ca_root.issuing_ca > tmp/bob/server.bundle
-
-##########
 # BUILD CLIENT IMAGE
 #
 .PHONY: build

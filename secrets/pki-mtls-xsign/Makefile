@@ -46,6 +46,7 @@ all: #target ## All Targets
 	make -f 05-02.cli.pki-int-server-role.mak all
 	make -f 06-01.cli.pki-int-client-cert.mak all
 	make -f 06-02.cli.pki-int-server-cert.mak all
+	make -f 06-03.cli.pki-int-ca-crl.mak all
 	cd workspace && make -f Makefile all
 
 ################################################################################

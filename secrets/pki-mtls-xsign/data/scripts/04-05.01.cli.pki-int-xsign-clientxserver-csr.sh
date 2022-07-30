@@ -11,6 +11,7 @@ vault write -format=json pki-int-client/intermediate/generate/exported \
     uri_sans="smf.5gc.mnc88.mcc888.3gppnetwork.org" \
     key_ref="$(jq -r '.data.key_id' < workspace/tmp/alice/ca/ca_root.json)" \
     private_key_format="pem" \
+    add_basic_constraints=true \
     | jq > workspace/tmp/alice/xint/pki-int-xsign-n7-client-csr.json
 jq -r '.data.csr' < workspace/tmp/alice/xint/pki-int-xsign-n7-client-csr.json > workspace/tmp/alice/xint/pki-int-xsign-n7-client.csr
 cat workspace/tmp/alice/xint/pki-int-xsign-n7-client.csr

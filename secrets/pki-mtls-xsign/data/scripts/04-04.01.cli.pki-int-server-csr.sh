@@ -3,7 +3,8 @@
 set -e
 set -x
 
-vault write -format=json pki-int-server/intermediate/generate/exported \
+#vault write -format=json pki-int-server/intermediate/generate/exported \
+vault write -format=json pki-int-server/intermediate/generate/internal \
     key_bits="4096" \
     organization="5gc.mnc88.mcc888.3gppnetwork.org" \
     common_name="pcf.5gc.mnc88.mcc888.3gppnetwork.org" \

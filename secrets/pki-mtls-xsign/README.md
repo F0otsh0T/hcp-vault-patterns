@@ -7,6 +7,7 @@ tags:
   - hcp-terraform
   - terraform
   - pki
+  - mtls
   - tech
 alias:
   - HashiCorp Vault: Secrets / PKI / mTLS Cross-Sign
@@ -19,8 +20,8 @@ PKI mTLS Cross-Sign Pattern
 
 ## Introduction
 
-**Server == Bob == PCF
-Client == Alice == SMF**
+- `Server` == Bob ==`PCF`
+- `Client` == Alice == `SMF`
 
 ## Steps
 
@@ -31,8 +32,9 @@ Client == Alice == SMF**
 [[]]
 
 ## Sources
+- https://www.vaultproject.io/api-docs/secret/pki
 - 
 
 ## Appendix
 
-- 
+- https://public.cyber.mil/pki-pke/interoperability/

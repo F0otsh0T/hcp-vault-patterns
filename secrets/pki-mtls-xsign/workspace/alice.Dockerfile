@@ -29,7 +29,7 @@ COPY tmp/ /vault/secrets/
 COPY files /files/
 COPY www /usr/share/nginx/html/
 #COPY config/ /vault/secrets
-COPY config /etc/nginx/conf.d/
+#COPY config /etc/nginx/conf.d/
 COPY config/default-alice.conf /etc/nginx/conf.d/default.conf
 #COPY vault_${VAULT_VERSION}_linux_amd64.zip /tmp/
 

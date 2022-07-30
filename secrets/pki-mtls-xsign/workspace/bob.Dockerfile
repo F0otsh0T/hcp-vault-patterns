@@ -30,7 +30,6 @@ COPY files /files/
 COPY www /usr/share/nginx/html/
 #COPY config/ /vault/secrets
 #COPY config /etc/nginx/conf.d/
-COPY config /etc/nginx/conf.d/
 #COPY config/default-bob.conf /etc/nginx/conf.d/default.conf
 COPY config/default-bob-mtls.conf /etc/nginx/conf.d/default.conf
 #COPY vault_${VAULT_VERSION}_linux_amd64.zip /tmp/

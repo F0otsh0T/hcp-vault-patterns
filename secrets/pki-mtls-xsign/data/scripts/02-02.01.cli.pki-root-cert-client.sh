@@ -3,8 +3,8 @@
 set -e
 set -x
 
-#vault write -format=json pki-root-client/root/generate/internal \
-vault write -format=json pki-root-client/root/generate/exported \
+#vault write -format=json pki-root-client/root/generate/exported \
+vault write -format=json pki-root-client/root/generate/internal \
     ttl="87600h" \
     key_bits="4096" \
     organization="5gc.mnc88.mcc888.3gppnetwork.org" \

@@ -173,6 +173,25 @@ graph LR
 
 ```
 
+## Steps
+
+```shell
+~/make -f Makefile all
+```
+
+[[]]
+
+## References
+- https://www.vaultproject.io/api-docs/secret/pki
+- https://public.cyber.mil/pki-pke/interoperability/
+- https://playbooks.idmanagement.gov/fpki/
+- https://www.ssltrust.com/blog/understanding-certificate-cross-signing
+- https://www.ietf.org/id/draft-housley-lamps-3g-nftypes-00.html#section-3
+- https://www.etsi.org/deliver/etsi_ts/133300_133399/133310/16.07.00_60/ts_133310v160700p.pdf
+- 
+
+## Appendix
+
 #### 5G Packet Core SBA
 
 ```mermaid
@@ -232,24 +251,3 @@ graph LR
   SMSF -- N18 --> UDSF;
 
 ```
-
-## Steps
-
-```shell
-~/make -f Makefile all
-```
-
-[[]]
-
-## References
-- https://www.vaultproject.io/api-docs/secret/pki
-- https://public.cyber.mil/pki-pke/interoperability/
-- https://playbooks.idmanagement.gov/fpki/
-- https://www.ssltrust.com/blog/understanding-certificate-cross-signing
-- https://www.ietf.org/id/draft-housley-lamps-3g-nftypes-00.html#section-3
-- https://www.etsi.org/deliver/etsi_ts/133300_133399/133310/16.07.00_60/ts_133310v160700p.pdf
-- 
-
-## Appendix
-
-- 

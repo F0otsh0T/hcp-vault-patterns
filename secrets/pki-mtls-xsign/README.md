@@ -64,7 +64,7 @@ PKI mTLS Cross-Sign Pattern
 - **N11** / `AMF` >> `SMF`
 - **N15** / `AMF` >> `PCF`
 
-#### Service Based Architecture Fows
+#### Service Based Architecture Flows
 
 ```mermaid
 graph LR

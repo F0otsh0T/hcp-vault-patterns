@@ -20,6 +20,32 @@ PKI mTLS Cross-Sign Pattern
 
 ## Introduction
 
+#### Contents
+
+```shell
+.
+├── xsign-app-based-roots
+│   ├── data
+│   │   ├── ..
+│   │   └── .
+│   ├── workspace
+│   │   ├── ..
+│   │   └── .
+│   ├── Makefile
+│   └── README.md
+├── xsign-service-based-roots
+│   ├── data
+│   │   ├── ..
+│   │   └── .
+│   ├── workspace
+│   │   ├── ..
+│   │   └── .
+│   ├── Makefile
+│   └── README.md
+├── Makefile
+└── README.md
+```
+
 #### Cast of Characters
 
 - `PCF` == Bob
@@ -30,6 +56,7 @@ PKI mTLS Cross-Sign Pattern
 #### Interactions
 
 `NEF` >> **N29** >> `SMF` >> **N7** >> `PCF`
+
 `SMF` << **N11** << `AMF` >> **N15** >> `PCF`
 
 - **N29** / `NEF` >> `SMF`
@@ -51,7 +78,7 @@ graph LR
 
 CA Root per Application: Each Application (CNF) in this case will get it's own CA Root but the caveat here is that once a CA Root Cross-Signs, the `TRUSTED` PKI Chain then will be able to access resources Signed by that [*Signing*] Root.
 
-For example, If the `PCF` Cross-Signs the CSR from the `AMF` for the `N15` interaction in the diagram above, the `AMF` will be able to access the `PCF` on both the `N15` ***AND*** `N7` Service APIs Signed by the `PCF`'s CA Root & ßIntermediate.
+For example, If the `PCF` Cross-Signs the CSR from the `AMF` for the `N15` interaction in the diagram above, the `AMF` will be able to access the `PCF` on both the `N15` ***AND*** `N7` Service APIs Signed by the `PCF`'s CA Root & Intermediate.
 
 ```mermaid
 graph LR 
@@ -82,9 +109,9 @@ graph LR
 
 ```
 
-#### PKI Cross-Sign - Restricted Client Access
+#### PKI Cross-Sign Flows: Service Based Roots
 
-CA Root per N-Interface Service Exposure
+CA Root per N-Interface Service: Better Access Controls for each Service
 
 
 ```mermaid

@@ -154,10 +154,12 @@ graph LR
 
 [[]]
 
-## Sources
+## References
 - https://www.vaultproject.io/api-docs/secret/pki
-- 
+- https://public.cyber.mil/pki-pke/interoperability/
+- https://playbooks.idmanagement.gov/fpki/
+- https://www.ssltrust.com/blog/understanding-certificate-cross-signing
 
 ## Appendix
 
-- https://public.cyber.mil/pki-pke/interoperability/
+- 

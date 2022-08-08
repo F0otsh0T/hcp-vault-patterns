@@ -177,6 +177,18 @@ graph LR
 
 ```mermaid
 graph LR
+
+  subgraph 5G
+    UE -- N1 --> AMF;
+    UE --- gNB;
+    gNB -- N2 --> AMF;
+    gNB -- N3 --> UPF;
+    UPF -- N6 --> DN;
+    UPF -- N9 --> UPF;
+    UPF -- N19 --> UPF-PSA;
+    UPF -- N18 --> UDSF;
+  end
+
   AMF -- N14 --> AMF;
   AMF -- N12 --> AUSF;
   AMF -- N50 --> CBCF;
@@ -189,8 +201,12 @@ graph LR
   AMF -- N15 --> PCF;
   AMF -- N55 --> UCMF;
   AMF -- N8 --> UDM;
-  gNB -- N2 --> AMF;
-  gNB -- N3 --> UPF;
+  SMF -- N40 --> CHF;
+  SMF -- N7 --> PCF;
+  SMF -- N29 --> SMF;
+  SMF -- N29i --> iSMF;
+  SMF -- N10 --> UDM;
+  SMF -- N4 --> UPF;
   LMF -- NL1 --> AMF;
   LMF -- NL7 --> LMF;
   NEF -- N33 --> AF;
@@ -206,25 +222,15 @@ graph LR
   PCF -- N24 --> Home-PCF;
   PCF -- N24 --> Visit-PCF;
   PCF -- N36 --> UDR;
-  SMF -- N40 --> CHF;
-  SMF -- N7 --> PCF;
-  SMF -- N29 --> SMF;
-  SMF -- N29i --> iSMF;
-  SMF -- N10 --> UDM;
-  SMF -- N4 --> UPF;
   SMSF -- N20 --> AMF;
-  UE -- N1 --> AMF;
   UDM -- N35 --> UDR;
-  UPF -- N6 --> DN;
-  UPF -- N9 --> UPF;
-  UPF -- N19 --> UPF-PSA;
   AMF -- N18 --> UDSF;
   LMF -- N18 --> UDSF;
   NEF -- N18 --> UDSF;
   PCF -- N18 --> UDSF;
   SMF -- N18 --> UDSF;
   SMSF -- N18 --> UDSF;
-  UPF -- N18 --> UDSF;
+
 ```
 
 ## Steps

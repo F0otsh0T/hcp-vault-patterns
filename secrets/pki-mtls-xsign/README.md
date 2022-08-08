@@ -66,6 +66,33 @@ PKI mTLS Cross-Sign Pattern
 
 #### Service Based Architecture Flows
 
+###### Basic Flow (Alice & Bob):
+
+- **N7**  / `SMF` >> `PCF` SBA Flow
+  ```mermaid
+  graph LR
+    SMF -- N7 --> PCF;
+  ```
+
+
+- **N7**  / `SMF` >> `PCF` PKI Trust Chain:
+  ```mermaid
+  graph LR 
+    SMF-ROOT==N7-CSR==>PCF-ROOT==N7-IMPORT==>SMF-INT-N7
+
+
+    subgraph SMF
+    SMF-ROOT((SMF-ROOT))-->SMF-INT-N7-->SMF-N7-Leaf>SMF-N7-Leaf]
+    SMF-ROOT((SMF-ROOT))-->SMF-INT-->SMF-Server-Leaf>SMF-Server-Leaf]
+    end
+
+    subgraph PCF
+    PCF-ROOT((PCF-ROOT))-->PCF-INT-->PCF-Server-Leaf>PCF-Server-Leaf]
+    end
+
+  ```
+###### Adding more Characters (Carol, Charlie, Alice, & Bob):
+
 ```mermaid
 graph LR
   AMF -- N11 --> SMF;

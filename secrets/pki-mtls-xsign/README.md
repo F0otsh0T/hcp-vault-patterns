@@ -101,7 +101,7 @@ graph LR
   NEF -- N29 --> SMF;
 ```
 
-#### PKI Cross-Sign Flows: Application Based Roots
+## PKI Cross-Sign Flows: Application Based Roots
 
 CA Root per Application: Each Application (CNF) in this case will get it's own CA Root but the caveat here is that once a CA Root Cross-Signs, the `TRUSTED` PKI Chain then will be able to access resources Signed by that [*Signing*] Root.
 
@@ -136,7 +136,18 @@ graph LR
 
 ```
 
-#### PKI Cross-Sign Flows: Service Based Roots
+### Steps
+
+```shell
+cd xsign-app-based-roots
+make -f Makefile all
+```
+
+#### Test Scripts
+
+Validate mTLS with Scripts @ `xsign-app-based-roots/data/scripts/test`
+
+## PKI Cross-Sign Flows: Service Based Roots
 
 CA Root per N-Interface Service: Better Access Controls for each Service
 
@@ -174,14 +185,14 @@ graph LR
 
 ```
 
-## Steps
+### Steps
 
 ```shell
 cd xsign-service-based-roots
 make -f Makefile all
 ```
 
-#### Service Mapping for Cross-Sign
+#### Service Mapping for Cross-Signed Service Based Roots
 
 `AMF`:
 - Client:
@@ -213,7 +224,7 @@ make -f Makefile all
 
 #### Test Scripts
 
-Validate mTLS with Scripts @ `data/scripts/test`
+Validate mTLS with Scripts @ `xsign-service-based-roots/data/scripts/test`
 
 
 [[]]

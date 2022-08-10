@@ -147,7 +147,7 @@ cd xsign-app-based-roots
 make -f Makefile all
 ```
 
-#### Service Mapping for Cross-Signed Service Based Roots
+#### Service Mapping for Cross-Signed Application Based Roots
 
 `AMF`
 |          |     **CLIENT**    | **SERVER** |

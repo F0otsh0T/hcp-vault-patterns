@@ -22,7 +22,7 @@
 # DEFAULTS
 ################################
 default: help
-.PHONY: all clean foundation pki_int_leaf
+.PHONY: all clean foundation cnf_template
 
 ################################################################################
 # ALL

@@ -196,59 +196,63 @@ graph LR
 #### 5G Packet Core SBA
 
 ```mermaid
-graph LR
+graph LR;
 
-  subgraph 5G
-    UE -- N1 --> AMF;
-    UE --- gNB;
-    gNB -- N2 --> AMF;
-    gNB -- N3 --> UPF;
-    UPF -- N6 --> DN;
-    UPF -- N9 --> UPF;
-    UPF -- N19 --> UPF-PSA;
-    UPF -- N18 --> UDSF;
+  UPF -- N18 --> UDSF
+  AMF -- N18 --> UDSF
+  LMF -- N18 --> UDSF
+  NEF -- N18 --> UDSF
+  PCF -- N18 --> UDSF
+  SMF -- N18 --> UDSF
+  SMSF -- N18 --> UDSF
+  CHF -- N18 --> UDSF
+  NSSF -- N18 --> UDSF
+  UDR -- N18 --> UDSF
+  AUSF -- N18 --> UDSF
+  UDM -- N18 --> UDSF
+
+  NEF -- N33 --> AF
+  NEF -- N29 --> SMF
+  iNEF -- N29i --> SMF
+  NEF -- N56 --> UCMF
+  NEF -- N52 --> UDM
+  NEF -- N37 --> UDR
+
+  PCF -- N5 --> AF
+  PCF -- N28 --> CHF
+  PCF -- N30 --> NEF
+  PCF -- N23 --> NWDAF
+  PCF -- N24 --> Home-PCF
+  PCF -- N24 --> Visit-PCF
+  PCF -- N36 --> UDR
+  SMSF -- N20 --> AMF
+  UDM -- N35 --> UDR
+
+  subgraph UP
+    direction LR
+    UE === gNB == N3 ==> UPF == N6 ==> DN
+    UPF -- N9 --> UPF
   end
 
-  AMF -- N14 --> AMF;
-  AMF -- N12 --> AUSF;
-  AMF -- N50 --> CBCF;
-  AMF -- N17 --> 5G-EIR;
-  AMF -- N51 --> NEF;
-  AMF -- N51i --> iNEF;
-  AMF -- N26 --> MME;
-  AMF -- N22 --> NSSF;
-  AMF -- N11 --> SMF;
-  AMF -- N15 --> PCF;
-  AMF -- N55 --> UCMF;
-  AMF -- N8 --> UDM;
-  SMF -- N40 --> CHF;
-  SMF -- N7 --> PCF;
-  SMF -- N29 --> SMF;
-  SMF -- N29i --> iSMF;
-  SMF -- N10 --> UDM;
-  SMF -- N4 --> UPF;
+  SMF -- N16 --> SMF
+  SMF -- N16a --> iSMF
+  UE -- N1 --> AMF -- N11 --> SMF -- N7 --> PCF -- N5 --> AF
+  gNB -- N2 --> AMF
+  SMF -- N4 --> UPF
+
+  AMF -- N22 --> NSSF
+  AMF -- N51i --> iNEF
+  AMF -- N51 --> NEF
+  AMF -- N14 --> AMF
+  AMF -- N15 --> PCF
+  AMF -- N8 --> UDM
+  AMF -- N55 --> UCMF
+  AMF -- N12 --> AUSF
+  AMF -- N50 --> CBCF
+  AMF -- N17 --> 5G-EIR
+  AMF -- N26 --> MME
+
   LMF -- NL1 --> AMF;
   LMF -- NL7 --> LMF;
-  NEF -- N33 --> AF;
-  NEF -- N29 --> SMF;
-  iNEF -- N29i --> SMF;
-  NEF -- N56 --> UCMF;
-  NEF -- N52 --> UDM;
-  NEF -- N37 --> UDR;
-  PCF -- N5 --> AF;
-  PCF -- N28 --> CHF;
-  PCF -- N30 --> NEF;
-  PCF -- N23 --> NWDAF;
-  PCF -- N24 --> Home-PCF;
-  PCF -- N24 --> Visit-PCF;
-  PCF -- N36 --> UDR;
-  SMSF -- N20 --> AMF;
-  UDM -- N35 --> UDR;
-  AMF -- N18 --> UDSF;
-  LMF -- N18 --> UDSF;
-  NEF -- N18 --> UDSF;
-  PCF -- N18 --> UDSF;
-  SMF -- N18 --> UDSF;
-  SMSF -- N18 --> UDSF;
 
 ```

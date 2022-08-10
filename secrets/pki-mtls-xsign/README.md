@@ -20,6 +20,8 @@ PKI mTLS Cross-Sign Pattern
 
 ## Introduction
 
+This is part of an excercise to test and validate mTLS. Specifically by utilizing Cross-Signing, we explore how to enable or restrict access with this CA Trust model.
+
 #### Contents
 
 ```shell
@@ -101,9 +103,11 @@ graph LR
   NEF -- N29 --> SMF;
 ```
 
-## PKI Cross-Sign Flows: Application Based Roots
+---
 
-CA Root per Application: Each Application (CNF) in this case will get it's own CA Root but the caveat here is that once a CA Root Cross-Signs, the `TRUSTED` PKI Chain then will be able to access resources Signed by that [*Signing*] Root.
+### PKI Cross-Sign Flows: Application Based Roots
+
+**CA Root per Application**: Each Application (CNF) in this case will get it's own CA Root but the caveat here is that once a CA Root Cross-Signs, the `TRUSTED` PKI Chain then will be able to access resources Signed by that [*Signing*] Root.
 
 For example, If the `PCF` Cross-Signs the CSR from the `AMF` for the `N15` interaction in the diagram above, the `AMF` will be able to access the `PCF` on both the `N15` ***AND*** `N7` Service APIs Signed by the `PCF`'s CA Root & Intermediate.
 
@@ -136,20 +140,49 @@ graph LR
 
 ```
 
-### Steps
+#### Steps
 
 ```shell
 cd xsign-app-based-roots
 make -f Makefile all
 ```
 
+#### Service Mapping for Cross-Signed Service Based Roots
+
+`AMF`
+|          |     **CLIENT**    | **SERVER** |
+|----------|:-----------------:|:----------:|
+| N11, N15 | workspace/tmp/amf |            |
+| SELF     |                   | _:20443_   |
+
+`NEF`
+|      |     **CLIENT**    | **SERVER** |
+|------|:-----------------:|:----------:|
+| N29  | workspace/tmp/nef |            |
+| SELF |                   | _:21443_   |
+
+`PCF`
+|      |     **CLIENT**    | **SERVER** |
+|------|:-----------------:|:----------:|
+| SELF | workspace/tmp/pcf |            |
+| N7   |                   | _:22443_   |
+| N15  |                   | _:22444_   |
+
+`SMF`
+|     |     **CLIENT**    | **SERVER** |
+|-----|:-----------------:|:----------:|
+| N7  | workspace/tmp/smf |            |
+| N11 |                   | _:23443_   |
+| N29 |                   | _:23444_   |
+
 #### Test Scripts
 
 Validate mTLS with Scripts @ `xsign-app-based-roots/data/scripts/test`
 
-## PKI Cross-Sign Flows: Service Based Roots
+---
+### PKI Cross-Sign Flows: Service Based Roots
 
-CA Root per N-Interface Service: Better Access Controls for each Service
+**CA Root per N-Interface Service**: Better Access Controls for each Service.
 
 
 ```mermaid
@@ -195,32 +228,32 @@ make -f Makefile all
 #### Service Mapping for Cross-Signed Service Based Roots
 
 `AMF`:
-- Client:
-  - workspace/tmp/amf/client-n11
-  - workspace/tmp/amf/client-n15
-- Server:
-  - SELF @ :20443
+|      |          **CLIENT**          | **SERVER** |
+|------|:----------------------------:|:----------:|
+| N11  | workspace/tmp/amf/client-n11 |            |
+| N15  | workspace/tmp/amf/client-n15 |            |
+| SELF |                              | _:20443_   |
 
 `NEF`:
-- Client:
-  - workspace/tmp/nef/client-n29
-- Server:
-  - SELF @ :21443
+|      |          **CLIENT**          | **SERVER** |
+|------|:----------------------------:|:----------:|
+| N29  | workspace/tmp/nef/client-n29 |            |
+| SELF |                              | _:21443_   |
 
 `PCF`:
-- Client:
-- Server:
-  - SELF @ :22443
-  - N7 @ :22444
-  - N15 @ :22445
+|      | **CLIENT** | **SERVER** |
+|------|:----------:|:----------:|
+| SELF |            | _:22443_   |
+| N7   |            | _:22444_   |
+| N15  |            | _:22445_   |
 
 `SMF`:
-- Client:
-  - workspace/tmp/smf/client-n7
-- Server:
-  - SELF @ :23443
-  - N11 @ :23444
-  - N29 @ :23445
+|      |          **CLIENT**         | **SERVER** |
+|------|:---------------------------:|:----------:|
+| N7   | workspace/tmp/smf/client-n7 |            |
+| SELF |                             | _:23443_   |
+| N11  |                             | _:23444_   |
+| N29  |                             | _:23445_   |
 
 #### Test Scripts
 

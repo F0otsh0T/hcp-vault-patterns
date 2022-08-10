@@ -177,8 +177,44 @@ graph LR
 ## Steps
 
 ```shell
+cd xsign-service-based-roots
 ~/make -f Makefile all
 ```
+
+#### Service Mapping for Cross-Sign
+
+`AMF`:
+- Client:
+  - workspace/tmp/amf/client-n11
+  - workspace/tmp/amf/client-n15
+- Server:
+  - SELF @ :20443
+
+`NEF`:
+- Client:
+  - workspace/tmp/nef/client-n29
+- Server:
+  - SELF @ :21443
+
+`PCF`:
+- Client:
+- Server:
+  - SELF @ :22443
+  - N7 @ :22444
+  - N15 @ :22445
+
+`SMF`:
+- Client:
+  - workspace/tmp/smf/client-n7
+- Server:
+  - SELF @ :23443
+  - N11 @ :23444
+  - N29 @ :23445
+
+#### Test Scripts
+
+Validate mTLS with Scripts @ `data/scripts/test`
+
 
 [[]]
 

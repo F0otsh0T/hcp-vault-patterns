@@ -178,7 +178,7 @@ graph LR
 
 ```shell
 cd xsign-service-based-roots
-~/make -f Makefile all
+make -f Makefile all
 ```
 
 #### Service Mapping for Cross-Sign

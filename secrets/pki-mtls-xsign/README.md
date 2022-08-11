@@ -227,27 +227,27 @@ make -f Makefile all
 
 #### Service Mapping for Cross-Signed Service Based Roots
 
-`AMF`:
+`AMF`
 |      |          **CLIENT**          | **SERVER** |
 |------|:----------------------------:|:----------:|
 | N11  | workspace/tmp/amf/client-n11 |            |
 | N15  | workspace/tmp/amf/client-n15 |            |
 | SELF |                              | _:20443_   |
 
-`NEF`:
+`NEF`
 |      |          **CLIENT**          | **SERVER** |
 |------|:----------------------------:|:----------:|
 | N29  | workspace/tmp/nef/client-n29 |            |
 | SELF |                              | _:21443_   |
 
-`PCF`:
+`PCF`
 |      | **CLIENT** | **SERVER** |
 |------|:----------:|:----------:|
 | SELF |            | _:22443_   |
 | N7   |            | _:22444_   |
 | N15  |            | _:22445_   |
 
-`SMF`:
+`SMF`
 |      |          **CLIENT**         | **SERVER** |
 |------|:---------------------------:|:----------:|
 | N7   | workspace/tmp/smf/client-n7 |            |

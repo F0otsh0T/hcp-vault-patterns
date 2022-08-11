@@ -40,7 +40,7 @@ pki_int-enable: #target ## Secrets Enable PKI INT
 # GENERATE INTERMEDIATE CSR FROM PKI_INT ENGINE
 #
 pki_int-csr: #target ## Generate Intermediate CSR
-	vault write -format=json pki_int-bob/intermediate/generate/internal common_name="5gc.mnc88.mcc888.3gppnetwork.org Intermediate Authority" | jq > workspace/tmp/bob/pki_int-bob.json
+	vault write -format=json pki_int-bob/intermediate/generate/internal common_name="5gc.mnc88.mcc888.3gppnetwork.org" | jq > workspace/tmp/bob/pki_int-bob.json
 	cat workspace/tmp/bob/pki_int-bob.json | jq -r '.data.csr' > workspace/tmp/bob/pki_int-bob.csr
 	cat workspace/tmp/bob/pki_int-bob.csr
 

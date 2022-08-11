@@ -28,13 +28,14 @@ default: help
 # ALL
 ################################################################################
 .PHONY: all
-all: build terraform-init terraform-apply verify #target ## All Targets
+all: build terraform-init terraform-apply #target ## All Targets
 
 ##########
 # CLEAN
 #
 .PHONY: clean
 clean: #target ## Clean Up
+	terraform init
 	terraform destroy -auto-approve
 
 ##########
@@ -42,10 +43,18 @@ clean: #target ## Clean Up
 #
 .PHONY: build
 build: #target ## Build Client Container Image
-	docker build -t mtlsserver:0.1 -f ./bob.Dockerfile .
-	docker image tag mtlsserver:0.1 mtlsserver:latest
-	docker build -t mtlsclient:0.1 -f ./alice.Dockerfile .
-	docker image tag mtlsclient:0.1 mtlsclient:latest
+#	# AMF
+	docker build -t mtlsxamf:0.1 -f ./tmp/amf/amf.Containerfile .
+	docker image tag mtlsxamf:0.1 mtlsxamf:latest
+#	# NEF
+	docker build -t mtlsxnef:0.1 -f ./tmp/nef/nef.Containerfile .
+	docker image tag mtlsxnef:0.1 mtlsxnef:latest
+#	# PCF
+	docker build -t mtlsxsmf:0.1 -f ./tmp/smf/smf.Containerfile .
+	docker image tag mtlsxsmf:0.1 mtlsxsmf:latest
+#	#SMF
+	docker build -t mtlsxpcf:0.1 -f ./tmp/pcf/pcf.Containerfile .
+	docker image tag mtlsxpcf:0.1 mtlsxpcf:latest
 
 ##########
 # TERRAFORM INIT
@@ -80,12 +89,12 @@ terraform-refesh: #target ## Terraform Refresh
 #
 .PHONY: verify
 verify: #target ## Verify mTLS Server Client
-	docker exec -it mtlsclient curl -k \
-		--url     https://192.168.65.2:9002 \
-		--cert    /vault/secrets/client.certificate \
-		--key     /vault/secrets/client.private_key \
-		--cacert  /vault/secrets/ca_root.issuing_ca \
-		--verbose
+	docker exec -it mtlsxsmf curl -k \
+		--url     https://192.168.65.2:9006 \
+		--cert    /vault/secrets/alice/n7-client.certificate \
+		--key     /vault/secrets/alice/n7-client.private_key \
+		--cacert  /vault/secrets/alice/ca/ca_root.certificate \
+		-vvv
 
 ##########
 # TEST CLIENT IMAGE
@@ -95,16 +104,18 @@ test: #target ## Test Client Container Image
 #	docker run -it -e VAULT_TOKEN=$(pass vault/pki_test) --privileged -p 9001:80 -p 9002:443 --name pkiclient pkiclient:0.1 bash
 	docker stop testnginx-server testnginx-client
 	docker rm testnginx-server testnginx-client
-	docker run -it --privileged -p 9001:80  -p 9002:443 --name testnginx-server mtlsserver:latest uname -a
-	docker run -it --privileged -p 9003:80  -p 9004:443 --name testnginx-client mtlsclient:latest uname -a
+	docker run -it --privileged -p 9005:80  -p 9006:443 --name testnginx-pcf mtlsxpcf:latest uname -a
+	docker run -it --privileged -p 9007:80  -p 9008:443 --name testnginx-smf mtlsxsmf:latest uname -a
+	docker run -it --privileged -p 9007:80  -p 9008:443 --name testnginx-amf mtlsxsmf:latest uname -a
 #	docker rm testnginx
 
 ##########
 # RUN CLIENT IMAGE
 #
 run: #target
-	docker run -d --privileged -p 9001:80 -p 9002:443 --name testnginx-server mtlsserver:latest
-	docker run -d --priveleged -p 9003:80 -p 9004:443 --name testnginx-client mtlsclient:latest
+	docker run -d --privileged -p 9001:80 -p 9002:443 --name testnginx-pcf mtlsxpcf:latest
+	docker run -d --priveleged -p 9003:80 -p 9004:443 --name testnginx-smf mtlsxsmf:latest
+	docker run -d --priveleged -p 9003:80 -p 9004:443 --name testnginx-amf mtlsxamf:latest
 
 ################################
 # HELP

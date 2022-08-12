@@ -13,11 +13,11 @@ export VAULT_ADDR='http://127.0.0.1:18200'
 
 ## NEF N29 Int
 vault secrets enable -path=nef_int_n29 pki
-vault write nef_int_n29/issuers/import/bundle pem_bundle="$(vault write -field=certificate -format=json smf_root_n29/issuer/default/sign-intermediate  csr="$(vault write -field=csr nef_int_n29/intermediate/generate/internal common_name="alice.nef.5gc.mnc88.mcc888.3gppnetwork.org" max_path_length=0 )" | jq -r '.')"
+vault write nef_int_n29/issuers/import/bundle pem_bundle="$(vault write -field=certificate -format=json smf_root_n29/issuer/default/sign-intermediate  csr="$(vault write -field=csr nef_int_n29/intermediate/generate/internal common_name="charlie.nef.5gc.mnc88.mcc888.3gppnetwork.org" max_path_length=0 )" | jq -r '.')"
 vault write nef_int_n29/issuer/default issuer_name="nef_int_n29"
 # #### NEF N29 Int / CSR
 # vault write -format=json nef_int_n29/intermediate/generate/internal \
-#     common_name="alice.nef.5gc.mnc88.mcc888.3gppnetwork.org" \
+#     common_name="charlie.nef.5gc.mnc88.mcc888.3gppnetwork.org" \
 #     max_path_length=0 \
 #     | jq > nef_int_n29.csr.json
 # jq < nef_int_n29.csr.json

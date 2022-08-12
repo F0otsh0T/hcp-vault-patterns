@@ -13,11 +13,11 @@ export VAULT_ADDR='http://127.0.0.1:18200'
 
 ## SMF N7 Int
 vault secrets enable -path=smf_int_n7 pki
-vault write smf_int_n7/issuers/import/bundle pem_bundle="$(vault write -field=certificate -format=json pcf_root_n7/issuer/default/sign-intermediate  csr="$(vault write -field=csr smf_int_n7/intermediate/generate/internal common_name="alice.smf.5gc.mnc88.mcc888.3gppnetwork.org" max_path_length=0 )" | jq -r '.')"
+vault write smf_int_n7/issuers/import/bundle pem_bundle="$(vault write -field=certificate -format=json pcf_root_n7/issuer/default/sign-intermediate  csr="$(vault write -field=csr smf_int_n7/intermediate/generate/internal common_name="carol.smf.5gc.mnc88.mcc888.3gppnetwork.org" max_path_length=0 )" | jq -r '.')"
 vault write smf_int_n7/issuer/default issuer_name="smf_int_n7"
 # #### SMF N7 Int / CSR
 # vault write -format=json smf_int_n7/intermediate/generate/internal \
-#     common_name="alice.smf.5gc.mnc88.mcc888.3gppnetwork.org" \
+#     common_name="carol.smf.5gc.mnc88.mcc888.3gppnetwork.org" \
 #     max_path_length=0 \
 #     | jq > smf_int_n7.csr.json
 # jq < smf_int_n7.csr.json

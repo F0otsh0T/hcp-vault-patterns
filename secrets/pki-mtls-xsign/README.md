@@ -200,20 +200,20 @@ graph LR
 
   subgraph AMF
   AMF-ROOT((AMF-ROOT))-->AMF-INT-->AMF-Server-Leaf>AMF-Server-Leaf]
-  AMF-ROOT-->AMF-INT-N11-->AMF-N11-Client-Leaf>AMF-N11-Client-Leaf]
-  AMF-ROOT-->AMF-INT-N15-->AMF-N15-Client-Leaf>AMF-N15-Client-Leaf]
+  AMF-INT-N11-->AMF-N11-Client-Leaf>AMF-N11-Client-Leaf]
+  AMF-INT-N15-->AMF-N15-Client-Leaf>AMF-N15-Client-Leaf]
   end
 
   subgraph SMF
   SMF-ROOT-N29((SMF-ROOT-N29))-->SMF-INT-N29-->SMF-N29-Server-Leaf>SMF-N29-Server-Leaf]
   SMF-ROOT((SMF-ROOT))-->SMF-INT-->SMF-Server-Leaf>SMF-Server-Leaf]
   SMF-ROOT-N11((SMF-ROOT-N11))-->SMF-INT-N11-->SMF-N11-Server-Leaf>SMF-N11-Server-Leaf]
-  SMF-ROOT((SMF-ROOT))-->SMF-INT-N7-->SMF-N7-Client-Leaf>SMF-N7-Client-Leaf]
+  SMF-INT-N7-->SMF-N7-Client-Leaf>SMF-N7-Client-Leaf]
   end
 
   subgraph NEF
   NEF-ROOT((NEF-ROOT))-->NEF-INT-->NEF-Server-Leaf>NEF-Server-Leaf]
-  NEF-ROOT-->NEF-INT-N29-->NEF-29-Client-Leaf>NEF-N29-Client-Leaf]
+  NEF-INT-N29-->NEF-29-Client-Leaf>NEF-N29-Client-Leaf]
   end
 
 ```

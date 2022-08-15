@@ -13,11 +13,11 @@ export VAULT_ADDR='http://127.0.0.1:18200'
 
 ## AMF N11 Int
 vault secrets enable -path=amf_int_n11 pki
-vault write amf_int_n11/issuers/import/bundle pem_bundle="$(vault write -field=certificate -format=json smf_root_n11/issuer/default/sign-intermediate  csr="$(vault write -field=csr amf_int_n11/intermediate/generate/internal common_name="alice.amf.5gc.mnc88.mcc888.3gppnetwork.org" max_path_length=0 )" | jq -r '.')"
+vault write amf_int_n11/issuers/import/bundle pem_bundle="$(vault write -field=certificate -format=json smf_root_n11/issuer/default/sign-intermediate  csr="$(vault write -field=csr amf_int_n11/intermediate/generate/internal common_name="carol.amf.5gc.mnc88.mcc888.3gppnetwork.org" max_path_length=0 )" | jq -r '.')"
 vault write amf_int_n11/issuer/default issuer_name="amf_int_n11"
 # #### AMF N11 Int / CSR
 # vault write -format=json amf_int_n11/intermediate/generate/internal \
-#     common_name="alice.amf.5gc.mnc88.mcc888.3gppnetwork.org" \
+#     common_name="carol.amf.5gc.mnc88.mcc888.3gppnetwork.org" \
 #     max_path_length=0 \
 #     | jq > amf_int_n11.csr.json
 # jq < amf_int_n11.csr.json

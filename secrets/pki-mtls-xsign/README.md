@@ -262,6 +262,10 @@ Validate mTLS with Scripts @ `xsign-service-based-roots/data/scripts/test`
 
 [[]]
 
+## Acknowledgements
+
+Big thanks goes to ***[@cipherboy](https://github.com/cipherboy)*** for help walking through the use cases here.
+
 ## References
 - https://www.vaultproject.io/api-docs/secret/pki
 - https://public.cyber.mil/pki-pke/interoperability/
@@ -269,7 +273,9 @@ Validate mTLS with Scripts @ `xsign-service-based-roots/data/scripts/test`
 - https://www.ssltrust.com/blog/understanding-certificate-cross-signing
 - https://www.ietf.org/id/draft-housley-lamps-3g-nftypes-00.html#section-3
 - https://www.etsi.org/deliver/etsi_ts/133300_133399/133310/16.07.00_60/ts_133310v160700p.pdf
-- 
+- https://www.etsi.org/deliver/etsi_ts/123500_123599/123501/16.06.00_60/ts_123501v160600p.pdf
+- https://www.etsi.org/deliver/etsi_ts/123500_123599/123502/15.02.00_60/ts_123502v150200p.pdf
+- https://www.etsi.org/deliver/etsi_ts/129500_129599/129503/15.02.01_60/ts_129503v150201p.pdf
 
 ## Appendix
 
@@ -277,7 +283,6 @@ Validate mTLS with Scripts @ `xsign-service-based-roots/data/scripts/test`
 
 ```mermaid
 graph LR;
-
   UPF -- N18 --> UDSF
   AMF -- N18 --> UDSF
   LMF -- N18 --> UDSF
@@ -290,14 +295,12 @@ graph LR;
   UDR -- N18 --> UDSF
   AUSF -- N18 --> UDSF
   UDM -- N18 --> UDSF
-
   NEF -- N33 --> AF
   NEF -- N29 --> SMF
   iNEF -- N29i --> SMF
   NEF -- N56 --> UCMF
   NEF -- N52 --> UDM
   NEF -- N37 --> UDR
-
   PCF -- N5 --> AF
   PCF -- N28 --> CHF
   PCF -- N30 --> NEF
@@ -307,19 +310,16 @@ graph LR;
   PCF -- N36 --> UDR
   SMSF -- N20 --> AMF
   UDM -- N35 --> UDR
-
   subgraph UP
     direction LR
     UE === gNB == N3 ==> UPF == N6 ==> DN
     UPF -- N9 --> UPF
   end
-
   SMF -- N16 --> SMF
   SMF -- N16a --> iSMF
   UE -- N1 --> AMF -- N11 --> SMF -- N7 --> PCF -- N5 --> AF
   gNB -- N2 --> AMF
   SMF -- N4 --> UPF
-
   AMF -- N22 --> NSSF
   AMF -- N51i --> iNEF
   AMF -- N51 --> NEF
@@ -331,8 +331,6 @@ graph LR;
   AMF -- N50 --> CBCF
   AMF -- N17 --> 5G-EIR
   AMF -- N26 --> MME
-
   LMF -- NL1 --> AMF;
   LMF -- NL7 --> LMF;
-
 ```

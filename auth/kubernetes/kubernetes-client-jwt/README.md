@@ -136,6 +136,24 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
     ```
 
+- As of Kubernetes 1.22, `service account` token `secret`'s are no longer automatically created - please follow https://kubernetes.io/docs/concepts/configuration/secret/#service-account-token-secrets if running greater than Kubernetes 1.24.
+
+    ```yaml
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: vault-auth-token
+      annotations:
+        kubernetes.io/service-account.name: vault-auth
+    type: kubernetes.io/service-account-token
+    ```
+
+    ```shell
+    kubectl create -f vault-auth-k8s-sasecret.yaml
+    secret/vault-auth-token created
+    ```
+
 ###### 2. Harvesting Data Needed from K8s Resources
 - ```VAULT_SA_NAME```
     From the **serviceaccount** ```vault-auth```, we need to extract the data value from the **.secrets[*]['name']** location to further harvest data from for our **Vault K8s Auth Method**
@@ -181,7 +199,7 @@ https://learn.hashicorp.com/tutorials/vault/agent-kubernetes#create-a-service-ac
     $ echo $SA_JWT_TOKEN
     BLAHBLAHBLAHJWT
     ```
-- ```SA_CA_CRT``` (BASE64 DECODE)
+- ```SA_CA_CRT``` (BASE64 DECODE `SA.PUB` / `sa.pub`)
     Set the **certificate** environment variable ```SA_CA_CRT``` for the Kubernetes Cluster from the **.clusters[].cluster.certificate-authority-data** (PEM Encoded Cluster CA CRT) that will be used by **Vault K8s Auth Method** to access this Cluster's **Kubernetes API**
     ```shell
     $ export SA_CA_CRT=$(kubectl config view --raw --minify --flatten --output 'jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 --decode)

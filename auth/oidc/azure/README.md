@@ -17,27 +17,6 @@ This pattern is built largely from the HashiCorp Learn Guide tutorials found in 
 
 ## STEPS
 
-###### Register Application
-
-- In Azure Active Directory (AAD), create `App registration`. Make sure you add **[Redirect URIs](https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-redirect-uri)** with "Web" type.
-  - **[Azure Portal GUI](https://portal.azure.com)**
-  - AZ CLI @ **[Azure AD App](https://learn.microsoft.com/en-us/cli/azure/ad/app?view=azure-cli-latest)** 
-    ```shell
-    az ad app create --display-name myappname --web-redirect-uris http://localhost:8250/oidc/callback http://localhost:8200/ui/vault/auth/oidc/oidc/callback
-    ```
-  - Terraform @ **[TF AzureAD Provider](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/application)**
-- Record the following data:
-  - Vault `oidc_client_id`: "Application (client) ID" (Azure Portal GUI) or "appId" (JSON output from CLI)
-  - Vault `oidc_discover_url`: `App registration` **Endpoints**: copy OpenID Connect (OIDC) metadata document URL, omitting the `../.well-known...` portion. This will be used in the Vault Auth OIDC configuration for the `oidc_client_secret` attribute.
-    - https://login.microsoftonline.com/common/v2.0
-    - https://login.microsoftonline.com/{{tenantID}}/v2.0
-  - Vault `oidc_client_secret`: Under **Certificates & secrets**, add a **[Client secret](https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-client-secret)** and harvest the `Value` output
-
-###### Connect AAD Group with Vault External Group
-- Go to AAD and choose your `App registration` for Vault
-- Go to **Token configuration** and **Add groups claim**. Select "All" or "SecurityGroup" based on [which groups for a user](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-fed-group-claims) you want returned in the claim.
-
----
 ###### [Register Vault as a web app](https://developer.hashicorp.com/vault/tutorials/auth-methods/oidc-auth-azure#register-vault-as-a-web-app)
 
 - **ENV** `AD_AZURE_DISPLAY_NAME`: Set AZ AD APP Registration Name

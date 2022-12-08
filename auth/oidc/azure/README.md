@@ -146,6 +146,7 @@ Every client token has policies attached to it to control its secret access. You
     ```
   - Policy @p.oidc.read.hcl
     ```shell
+    cat > p.oidc.read.hcl << EOF
     # Mount the OIDC auth method
     path "sys/auth/oidc" {
       capabilities = [ "read", "list" ]
@@ -177,6 +178,8 @@ Every client token has policies attached to it to control its secret access. You
     {
       capabilities = [ "read", "list" ]
     }
+
+    EOF
     ```
 - Write polices to Vault
   ```shell

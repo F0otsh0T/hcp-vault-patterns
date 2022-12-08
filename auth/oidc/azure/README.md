@@ -17,7 +17,7 @@ This pattern is built largely from the HashiCorp Learn Guide tutorials found in 
 
 ## STEPS
 
-###### Register
+###### Register Application
 
 - In Azure Active Directory (AAD), create `App registration`. Make sure you add **[Redirect URIs](https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-redirect-uri)** with "Web" type.
   - **[Azure Portal GUI](https://portal.azure.com)**
@@ -91,12 +91,12 @@ This pattern is built largely from the HashiCorp Learn Guide tutorials found in 
     --query 'appOwnerOrganizationId' -o tsv)
   ```
 - **ENV** `AD_CLIENT_SECRET`: Set/Reset the client secret for the application and set the password to the `AD_CLIENT_SECRET` environment variable. You will need the secret to configure the OIDC auth method in Vault.
-```shell
-export AD_CLIENT_SECRET=$(az ad app credential reset \
-    --id ${AD_VAULT_APP_ID} | \
-    jq > appreg-pass.json | \
-    jq -r '.password')
-```
+  ```shell
+  export AD_CLIENT_SECRET=$(az ad app credential reset \
+      --id ${AD_VAULT_APP_ID} | \
+      jq > appreg-pass.json | \
+      jq -r '.password')
+  ```
 ---
 ###### [Update application group claims and ID tokens](https://developer.hashicorp.com/vault/tutorials/auth-methods/oidc-auth-azure#update-application-group-claims-and-id-tokens)
 In order to use AD groups to authenticate to Vault, you need to update the Vault application in Azure with a claim for group membership information.

@@ -331,30 +331,30 @@ Create an Active Directory group with a set of application development team user
 
 
 - Try to log into the server with the OIDC auth method as a member of the AD group you configured with Vault. If it is successful, the command launches a browser to Azure for you to log in and return a Vault token.
-```shell
-vault login -method=oidc role="oidc_role_aad_group"
-Complete the login via your OIDC provider. Launching browser to:
+  ```shell
+  vault login -method=oidc role="oidc_role_aad_group"
+  Complete the login via your OIDC provider. Launching browser to:
 
-    https://login.microsoftonline.com/...
+      https://login.microsoftonline.com/...
 
 
-Waiting for OIDC authentication to complete...
-Success! You are now authenticated. The token information displayed below
-is already stored in the token helper. You do NOT need to run "vault login"
-again. Future Vault requests will automatically use this token.
+  Waiting for OIDC authentication to complete...
+  Success! You are now authenticated. The token information displayed below
+  is already stored in the token helper. You do NOT need to run "vault login"
+  again. Future Vault requests will automatically use this token.
 
-Key                  Value
----                  -----
-token                hvs.Loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliqu
-token_accessor       Loremipsumdolorsitametco
-token_duration       768h
-token_renewable      true
-token_policies       ["p.oidc.read"]
-identity_policies    []
-policies             ["p.oidc.read"]
-token_meta_role      oidc_role_aad_group
+  Key                  Value
+  ---                  -----
+  token                hvs.Loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliqu
+  token_accessor       Loremipsumdolorsitametco
+  token_duration       768h
+  token_renewable      true
+  token_policies       ["p.oidc.read"]
+  identity_policies    []
+  policies             ["p.oidc.read"]
+  token_meta_role      oidc_role_aad_group
 
-```
+  ```
 
 ---
 

@@ -7,7 +7,7 @@
 ## BACKGROUND
 This pattern utilizes Azure AD via OIDC and Vault Auth to enable AuthN for guest access into an Azure Tenant Application.  In this case, the Application will be Vault itself.
 
-This pattern is built largely from the HashiCorp Learn Guide tutorials found in the links in the [REFERENCES](#references) section below.
+This is built largely from the HashiCorp Learn Guide tutorials found in the links in the [REFERENCES](#references) section below.
 
 ## PREREQUISITES
 - Azure Subscription

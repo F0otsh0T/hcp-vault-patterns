@@ -22,7 +22,7 @@ The **[B2B Collaoration](https://learn.microsoft.com/en-us/azure/active-director
 
 ## STEPS
 
-###### Create Guest User and Invite
+###### [Create Guest User and Invite](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/add-users-administrator)
 
 - Via [Terraform AzureAD Provider](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/invitation)
 - Via Azure Graph

@@ -349,9 +349,9 @@ token                hvs.Loremipsumdolorsitametconsecteturadipiscingelitseddoeiu
 token_accessor       Loremipsumdolorsitametco
 token_duration       768h
 token_renewable      true
-token_policies       ["default" "p.oidc.read"]
+token_policies       ["p.oidc.read"]
 identity_policies    []
-policies             ["default" "p.oidc.read"]
+policies             ["p.oidc.read"]
 token_meta_role      oidc_role_aad_group
 
 ```

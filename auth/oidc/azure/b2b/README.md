@@ -209,6 +209,10 @@ Create an Active Directory group with a set of application development team user
   ```shell
   export AD_APP_ROLE_ID=$(az ad app show --id ${AD_VAULT_APP_ID} | jq -r '.appRoles[0].id')
   ```
+  or
+  ```shell
+  export AD_APP_ROLE_ID=$(az ad app show --id ${AD_VAULT_APP_ID} | jq --arg key "$AD_APP_ROLE_VALUE" -r '.appRoles[] | select(.value == $key) | .id')
+  ```
 - The Azure **Enterprise Application** is essentially the `service principal` representation of it's corresponding Azure **App Registration** (Enterprise Application Object `ID` == Service Principal `ID`). The `app role` created above (**ENV** `AD_APP_ROLE_ID`) needs to be linked to the **Guest User** (**ENV** `AD_GUEST_ID`) in the **Enterprise Application**
   - [Create JSON Body for `App Role` to `Guest User` Linkage and Assignment](https://learn.microsoft.com/en-us/graph/api/user-post-approleassignments?view=graph-rest-1.0&tabs=http#request)
     ```shell

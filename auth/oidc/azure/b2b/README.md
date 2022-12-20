@@ -289,6 +289,11 @@ Every client token has policies attached to it to control its secret access. You
       capabilities = ["create", "read", "update", "delete", "list", "sudo"]
     }
 
+       path "oidc/*"
+    {
+      capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+    }
+
     EOF
 
     ```
@@ -323,6 +328,11 @@ Every client token has policies attached to it to control its secret access. You
 
     # List, create, update, and delete key/value secrets
     path "secret/*"
+    {
+      capabilities = [ "read", "list" ]
+    }
+
+   path "oidc/*"
     {
       capabilities = [ "read", "list" ]
     }

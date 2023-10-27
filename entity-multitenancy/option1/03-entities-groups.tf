@@ -45,6 +45,8 @@ resource "vault_identity_entity_alias" "bob_smith_to_bob" {
 resource "vault_identity_group" "training_admin" {
   name = "Training Admin"
   type = "internal"
+  namespace = values(vault_namespace.children)[1].path_fq
+#  namespace = "education/training"
   policies = [
     "training-admin"
   ]

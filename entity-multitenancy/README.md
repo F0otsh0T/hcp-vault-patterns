@@ -1,6 +1,6 @@
 ---
-title: HCP Vault Patterns: Entities and Clients
-description: Vault Identity - Entities, Namespace, Multi-Tenancy
+title: "HCP Vault Patterns: Entities and Clients"
+description: "Vault Identity - Entities, Namespace, Multi-Tenancy"
 ---
 # HCP Vault Patterns: Entities and Clients
 

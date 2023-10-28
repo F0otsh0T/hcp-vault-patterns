@@ -25,6 +25,12 @@ Enable the auth method in each namespace with entity alias and internal groups.
 
 #### Option 2
 When utilizing an auth method such as `ldap` or `okta`, map appropriate policies to those externally defined groups. Enable the auth method in the root namespace and use Identity Groups to pull in external groups and map policies in each namespace.
+- Create Auth & External Group.
+![Create Auth & External Group](../assets/img/identity-entity-opt2-01-auth-external-group.png)
+- Link Auth and External Group via Group Alias.
+![Link Auth and External Group via Group Alias](../assets/img/identity-entity-opt2-02-entity.png)
+- Create Internal Group in `education/training` Namespace with previous External Group as member.
+![Create Internal Group and Associate External Group](../assets/img/identity-entity-opt2-03-groups.png)
 
 ## REFERENCE
 - https://developer.hashicorp.com/vault/docs/concepts/identity#entities-and-aliases

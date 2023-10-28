@@ -10,7 +10,11 @@ resource "vault_auth_backend" "userpass" {
 
 ## Create a user `bob` under the `education` (Parent) Namespace 
 resource "vault_generic_endpoint" "bob" {
-  depends_on           = [vault_auth_backend.userpass]
+  depends_on = [
+    vault_auth_backend.userpass
+  ]
+  namespace = vault_namespace.parent.path_fq
+#  namespace = "education"
   path                 = "auth/userpass/users/bob"
   ignore_absent_fields = true
 
@@ -23,7 +27,7 @@ EOT
 
 ## Create an entity for `Bob Smith` in NameSpace `education` with `edu-admin` policy attached
 resource "vault_identity_entity" "bob_smith" {
-  name      = "Bob Smith"
+  name = "Bob Smith"
   namespace = vault_namespace.parent.path_fq
   #  namespace = "education"
   policies = ["edu-admin"]
@@ -34,7 +38,12 @@ resource "vault_identity_entity" "bob_smith" {
 
 ## Create an entity alias for `Bob Smith` to attach `bob`
 resource "vault_identity_entity_alias" "bob_smith_to_bob" {
-  name      = "bob"
+  name = "bob"
+  depends_on = [
+    vault_auth_backend.userpass,
+    vault_generic_endpoint.bob,
+    vault_identity_entity.bob_smith
+  ]
   namespace = vault_namespace.parent.path_fq
   #  namespace = "education"
   mount_accessor = vault_auth_backend.userpass.accessor
@@ -43,10 +52,10 @@ resource "vault_identity_entity_alias" "bob_smith_to_bob" {
 
 ## Create a group, "Training Admin" in `education/training` namespace with `Bob Smith` entity as its member.
 resource "vault_identity_group" "training_admin" {
-  name = "Training Admin"
-  type = "internal"
+  name      = "Training Admin"
+  type      = "internal"
   namespace = values(vault_namespace.children)[1].path_fq
-#  namespace = "education/training"
+  #  namespace = "education/training"
   policies = [
     "training-admin"
   ]

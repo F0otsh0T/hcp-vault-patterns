@@ -5,7 +5,7 @@ resource "vault_policy" "edu-admin" {
   name      = "edu-admin"
   namespace = vault_namespace.parent.path_fq
   depends_on = [
-   vault_namespace.parent
+    vault_namespace.parent
   ]
   policy = <<EOT
 # Manage namespaces
@@ -56,7 +56,7 @@ resource "vault_policy" "training-admin" {
   #  namespace = values(vault_namespace.children)[1].path_fq
   namespace = "education/training"
   depends_on = [
-   vault_namespace.children
+    vault_namespace.children
   ]
   policy = <<EOT
 # Manage namespaces

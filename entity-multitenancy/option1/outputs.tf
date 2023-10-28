@@ -54,15 +54,15 @@ output "vault_namespace_children_path_fq" {
   value       = values(vault_namespace.children)[*].path_fq
 }
 
-output "vault_policy_edu_admin" {
+/* output "vault_policy_edu_admin" {
   description = "Vault Policy edu-admin"
   value       = vault_policy.edu-admin
-}
+} */
 
-output "vault_policy-training_admin" {
+/* output "vault_policy-training_admin" {
   description = "Vault Policy training-admin"
   value       = vault_policy.training-admin
-}
+} */
 
 output "vault_auth_backend_userpass" {
   description = "Vault Auth Backend UserPass"
@@ -86,8 +86,8 @@ output "vault_entity_alias_bob_smith_to_bob" {
 }
 
 output "vault_identity_group_training_admin" {
-    description = "Vault Identity Group `Training Admin`"
-    value = vault_identity_group.training_admin
+  description = "Vault Identity Group `Training Admin`"
+  value       = vault_identity_group.training_admin
 }
 
 
